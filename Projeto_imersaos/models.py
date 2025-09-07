@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 class Cadastro(models.Model):
     nome = models.CharField(max_length=200)
@@ -28,3 +29,17 @@ class Aluguel(models.Model):
 
     def __str__(self):
         return f"{self.cliente.nome} alugou {self.produto.nome} em {self.data_aluguel}"
+    def marcar_devolucao(self):
+        self.data_devolucao = timezone.now()
+        self.save() 
+    def esta_devolvido(self):
+        return self.data_devolucao is not None  
+
+class historico_aluguel(models.Model):
+    aluguel = models.ForeignKey(Aluguel, on_delete=models.CASCADE)
+    data_alteracao = models.DateTimeField(auto_now_add=True)
+    descricao_alteracao = models.TextField()
+
+    def __str__(self):
+        return f"Alteração em {self.aluguel} em {self.data_alteracao}"   
+
