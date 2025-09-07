@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="America/Sao_Paulo">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sistema de Controle de Empréstimos{% endblock %}</title>
+    
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">Sistema Empréstimos</div>
+            <div class="menu-item active" data-target="dashboard">
+                <i>📊</i> Dashboard
+            </div>
+            <div class="menu-item" data-target="colaboradores">
+                <i>👥</i> Colaboradores
+            </div>
+            <div class="menu-item" data-target="equipamentos">
+                <i>💻</i> Equipamentos
+            </div>
+            <div class="menu-item" data-target="emprestimos">
+                <i>📦</i> Empréstimos
+            </div>
+            <div class="menu-item" data-target="historico">
+                <i>📋</i> Histórico
+            </div>
+            {% if user.perfil == 'Administrador' %}
+            <div class="menu-item" data-target="usuarios">
+                <i>👤</i> Usuários
+            </div>
+            {% endif %}
+            <div class="menu-item" onclick="location.href='{% url 'logout' %}'">
+                <i>🚪</i> Sair
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div class="page-title">Dashboard</div>
+                <div class="user-info">
+                    <div class="user-avatar">{{ user.first_name|first|default:user.username|first }}</div>
+                    <div>{{ user.get_full_name|default:user.username }}</div>
+                </div>
+            </div>
+            
+            <!-- Conteúdo dinâmico -->
+            <div id="content">
+                {% block content %}
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para confirmações -->
+    <div id="modal-confirmacao" class="modal">
+        <div class="modal-content">
+            <h3 id="modal-titulo">Confirmação</h3>
+            <p id="modal-mensagem">Tem certeza que deseja executar esta ação?</p>
+            <div class="modal-buttons">
+                <button id="modal-confirmar" class="btn btn-danger">Confirmar</button>
+                <button id="modal-cancelar" class="btn btn-primary">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CSRF Token para requisições AJAX -->
+    <script>
+        const CSRF_TOKEN = "{{ csrf_token }}";
+        const API_BASE_URL = "{% url 'api-root' %}";
+        const USER_PERFIL = "{{ user.perfil }}";
+    </script>
+
+    <script src="{% static 'js/scripts.js' %}"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
