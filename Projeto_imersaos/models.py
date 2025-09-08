@@ -20,7 +20,7 @@ class cadastro(models.Model):
     def __str__(self):  
         return self.nome + " - " + str(self.idade)  + " - " + self.locacao + " - " + self.contato
     
-class colaboradores(models.Model):
+class colaborador(models.Model):
     nome = models.CharField(max_length=200)
     setor = models.CharField(max_length=200)
     contato = models.CharField(max_length=200)
