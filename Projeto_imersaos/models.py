@@ -35,6 +35,7 @@ class Equipamentos(models.Model):
     preco = models.DecimalField(max_digits=10, decimal_places=2)
     estoque = models.IntegerField()
     date_added = models.DateTimeField(auto_now_add=True)
+    ativo = models.BooleanField(default=True)
 
     def __str__(self):
         return self.nome + " - " + str(self.produto.nome) + " - " + str(self.data_emprestimo)
