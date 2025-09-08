@@ -4,11 +4,15 @@ from .models import equipamento, emprestimo, colaborador, cadastro, usuario
 def index(request):
     """"Página Principal do Pereirao Projeto_imersao"""
     context = {
-        'equipamentos': equipamento.objects.filter(ativo=True).count(),
-        'emprestimos': emprestimo.objects.filter(status="Em aberto").count(),
-        'colaboradores': colaborador.objects.all(),
-    }
-    return render(request, 'projeto_imersao/index.html')
+        'total_equipamentos': equipamento.objects.count(),  # Para exibir o total
+        'equipamentos_list': equipamento.objects.all(),     # Para fazer o loop na template
+        'total_emprestimos': emprestimo.objects.filter(data_devolucao__isnull=True).count(),
+        'emprestimos_list': emprestimo.objects.filter(data_devolucao__isnull=True),
+        'total_colaboradores': cadastro.objects.count(),
+        'colaboradores_list': cadastro.objects.all(),
+
+    }   
+    return render(request, 'projeto_imersao/index.html', context)
 
 def dashboard_data(request):
     """Retorna dados para o dashboard em formato JSON"""

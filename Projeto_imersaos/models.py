@@ -41,13 +41,19 @@ class equipamento(models.Model):
         return self.nome + " - " + str(self.produto.nome) + " - " + str(self.data_emprestimo)
     
 class emprestimo(models.Model):
+    status_choices = [
+        ('ativo', 'ativo'),
+        ('em atraso', 'em atraso'),
+        ('devolvido', 'devolvido'), 
+    ]
     produto = models.ForeignKey(equipamento, on_delete=models.CASCADE)
-    cliente = models.ForeignKey(cadastro, on_delete=models.CASCADE)
+    colaborador = models.ForeignKey(cadastro, on_delete=models.CASCADE)
     data_emprestimo = models.DateTimeField(auto_now_add=True)
     data_devolucao = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(max_length=20, choices=status_choices, default='ativo')   
 
     def __str__(self):
-        return f"{self.cliente.nome} alugou {self.equipamento.nome} em {self.data_emprestimo}"
+        return f"{self.colaborador.nome} alugou {self.equipamento.nome} em {self.data_emprestimo}"
     def marcar_devolucao(self):
         self.data_devolucao = timezone.now()
         self.save() 
@@ -55,10 +61,10 @@ class emprestimo(models.Model):
         return self.data_devolucao is not None  
 
 class historico_emprestimo(models.Model):
-    aluguel = models.ForeignKey(emprestimo, on_delete=models.CASCADE)
+    emprestimo = models.ForeignKey(emprestimo, on_delete=models.CASCADE)
     data_alteracao = models.DateTimeField(auto_now_add=True)
     descricao_alteracao = models.TextField()
 
     def __str__(self):
-        return f"Alteração em {self.aluguel} em {self.data_alteracao}"   
+        return f"Alteração em {self.emprestimo} em {self.data_alteracao}"   
 

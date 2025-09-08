@@ -14,8 +14,14 @@
             {% for equipamento in equipamentos %}
             <tr data-id="{{ equipamento.id }}">
                 <td>{{ equipamento.nome }}</td>
-                <td>{{ equipamento.tipo }}</td>
-                <td>{{ equipamento.status }}</td>
+                <td>{{ equipamento.descricao }}</td>  <!-- Use descricao em vez de tipo -->
+                <td>
+                    {% if equipamento.estoque > 0 %}
+                        Disponível
+                    {% else %}
+                        Indisponível
+                    {% endif %}
+                </td>
                 <td>
                     <button class="btn btn-sm btn-warning btn-editar-equipamento">Editar</button>
                     <button class="btn btn-sm btn-danger btn-excluir-equipamento">Excluir</button>
