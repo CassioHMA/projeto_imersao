@@ -30,22 +30,22 @@ class Equipamento(models.Model):
     def __str__(self):
         return self.nome + " - " + str(self.preco) + " - " + str(self.estoque)
     
-class Aluguel(models.Model):
+class Emprestimo(models.Model):
     produto = models.ForeignKey(Equipamento, on_delete=models.CASCADE)
     cliente = models.ForeignKey(Cadastro, on_delete=models.CASCADE)
-    data_aluguel = models.DateTimeField(auto_now_add=True)
+    data_emprestimo = models.DateTimeField(auto_now_add=True)
     data_devolucao = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.cliente.nome} alugou {self.equipamento.nome} em {self.data_aluguel}"
+        return f"{self.cliente.nome} alugou {self.equipamento.nome} em {self.data_emprestimo}"
     def marcar_devolucao(self):
         self.data_devolucao = timezone.now()
         self.save() 
     def esta_devolvido(self):
         return self.data_devolucao is not None  
 
-class historico_aluguel(models.Model):
-    aluguel = models.ForeignKey(Aluguel, on_delete=models.CASCADE)
+class historico_emprestimo(models.Model):
+    aluguel = models.ForeignKey(Emprestimo, on_delete=models.CASCADE)
     data_alteracao = models.DateTimeField(auto_now_add=True)
     descricao_alteracao = models.TextField()
 
