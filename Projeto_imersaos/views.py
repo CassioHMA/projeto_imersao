@@ -10,4 +10,14 @@ def index(request):
     }
     return render(request, 'projeto_imersao/index.html')
 
+def dashboard_data(request):
+    """Retorna dados para o dashboard em formato JSON"""
+    from django.http import JsonResponse
+    data = {
+        'total_equipamentos': Equipamentos.objects.count(),
+        'total_emprestimos': Emprestimos.objects.count(),
+        'total_colaboradores': colaboradores.objects.count(),
+    }
+    return JsonResponse(data)
+
 # Create your views here.
