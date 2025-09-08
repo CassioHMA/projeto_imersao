@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Equipamentos, Emprestimos, colaboradores
+from .models import Equipamentos, Emprestimos, colaboradores, Cadastro, usuario
 
 def index(request):
     """"Página Principal do Pereirao Projeto_imersao"""

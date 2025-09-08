@@ -1,4 +1,5 @@
 from django.contrib import admin
-from .models import usuario, Cadastro, Equipamento, Emprestimos, historico_emprestimo
+from .models import Equipamentos, Emprestimos, colaboradores, Cadastro, usuario
+
 
 admin.site.register(Cadastro)
