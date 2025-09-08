@@ -19,8 +19,17 @@ class Cadastro(models.Model):
 
     def __str__(self):  
         return self.nome + " - " + str(self.idade)  + " - " + self.locacao + " - " + self.contato
+    
+class colaboradores(models.Model):
+    nome = models.CharField(max_length=200)
+    setor = models.CharField(max_length=200)
+    contato = models.CharField(max_length=200)
+    date_added = models.DateTimeField(auto_now_add=True)
 
-class Equipamento(models.Model):
+    def __str__(self):  
+        return self.nome + " - " + self.setor + " - " + self.contato
+
+class Equipamentos(models.Model):
     nome = models.CharField(max_length=200)
     descricao = models.TextField()
     preco = models.DecimalField(max_digits=10, decimal_places=2)
@@ -28,10 +37,10 @@ class Equipamento(models.Model):
     date_added = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.nome + " - " + str(self.preco) + " - " + str(self.estoque)
+        return self.nome + " - " + str(self.produto.nome) + " - " + str(self.data_emprestimo)
     
-class Emprestimo(models.Model):
-    produto = models.ForeignKey(Equipamento, on_delete=models.CASCADE)
+class Emprestimos(models.Model):
+    produto = models.ForeignKey(Equipamentos, on_delete=models.CASCADE)
     cliente = models.ForeignKey(Cadastro, on_delete=models.CASCADE)
     data_emprestimo = models.DateTimeField(auto_now_add=True)
     data_devolucao = models.DateTimeField(null=True, blank=True)
@@ -45,7 +54,7 @@ class Emprestimo(models.Model):
         return self.data_devolucao is not None  
 
 class historico_emprestimo(models.Model):
-    aluguel = models.ForeignKey(Emprestimo, on_delete=models.CASCADE)
+    aluguel = models.ForeignKey(Emprestimos, on_delete=models.CASCADE)
     data_alteracao = models.DateTimeField(auto_now_add=True)
     descricao_alteracao = models.TextField()
 
