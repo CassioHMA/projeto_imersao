@@ -1,11 +1,11 @@
 from django.shortcuts import render
-from .models import Equipamentos, Emprestimos, colaboradores, Cadastro, usuario
+from .models import equipamento, emprestimo, colaboradores, cadastro, usuario
 
 def index(request):
     """"Página Principal do Pereirao Projeto_imersao"""
     context = {
-        'equipamentos': Equipamentos.objects.filter(ativo=True).count(),
-        'emprestimos': Emprestimos.objects.filter(status="Em aberto").count(),
+        'equipamentos': equipamento.objects.filter(ativo=True).count(),
+        'emprestimos': emprestimo.objects.filter(status="Em aberto").count(),
         'colaboradores': colaboradores.objects.all(),
     }
     return render(request, 'projeto_imersao/index.html')
@@ -14,8 +14,8 @@ def dashboard_data(request):
     """Retorna dados para o dashboard em formato JSON"""
     from django.http import JsonResponse
     data = {
-        'total_equipamentos': Equipamentos.objects.count(),
-        'total_emprestimos': Emprestimos.objects.count(),
+        'total_equipamentos': equipamento.objects.count(),
+        'total_emprestimos': emprestimo.objects.count(),
         'total_colaboradores': colaboradores.objects.count(),
     }
     return JsonResponse(data)
