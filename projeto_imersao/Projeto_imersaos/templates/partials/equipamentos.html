@@ -1,0 +1,44 @@
+<div class ="equipamentos-section">
+    <h2>Equipamentos</h2>
+    <button id="btn-adicionar-equipamento" class="btn btn-primary">Adicionar Equipamento</button>
+    <table class="table" id="tabela-equipamentos">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Tipo</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for equipamento in equipamentos %}
+            <tr data-id="{{ equipamento.id }}">
+                <td>{{ equipamento.nome }}</td>
+                <td>{{ equipamento.descricao }}</td>  <!-- Use descricao em vez de tipo -->
+                <td>
+                    {% if equipamento.estoque > 0 %}
+                        Disponível
+                    {% else %}
+                        Indisponível
+                    {% endif %}
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-warning btn-editar-equipamento">Editar</button>
+                    <button class="btn btn-sm btn-danger btn-excluir-equipamento">Excluir</button>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">Nenhum equipamento encontrado.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Formulário Modal para Adicionar/Editar Equipamento -->
+    <div id="modal-equipamento" class="modal">
+        <div class="modal-content">
+            <h3 id="modal-equipamento-titulo">Adicionar Equipamento</h3>
+            <form id="form-equipamento">
+                <input type="hidden" id="equipamento-id" name="equipamento_id">
+                <div class="form-group
