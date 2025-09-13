@@ -162,45 +162,55 @@ def lista_emprestimos(request):
         'status_filter': status_filter
     })
 
+
 def criar_emprestimo(request):
     if request.method == 'POST':
-        form = EmprestimoForm(request.POST)
-        if form.is_valid():
-            emprestimo_obj = form.save(commit=False)
+        try:
+            # Processar o formulário
+            produto_id = request.POST.get('produto')
+            colaborador_id = request.POST.get('colaborador')
+            data_emprestimo = request.POST.get('data_emprestimo')
+            data_devolucao = request.POST.get('data_devolucao') or None
+            status = request.POST.get('status')
             
-            # Verificar se o equipamento está disponível
-            equipamento_obj = emprestimo_obj.equipamento
-            if equipamento_obj.estoque <= 0:
-                messages.error(request, 'Equipamento não disponível em estoque!')
-                return render(request, 'form_emprestimo.html', {'form': form, 'titulo': 'Criar Empréstimo'})
-            
-            # Reduzir o estoque do equipamento
-            equipamento_obj.estoque -= 1
-            equipamento_obj.save()
-            
+            # Criar o empréstimo
+            emprestimo_obj = emprestimo(
+                produto_id=produto_id,
+                colaborador_id=colaborador_id,
+                data_emprestimo=data_emprestimo,
+                data_devolucao=data_devolucao,
+                status=status
+            )
             emprestimo_obj.save()
             
-            # Criar histórico
-            historico_emprestimo.objects.create(
-                emprestimo=emprestimo_obj,
-                descricao_alteracao=f'Empréstimo criado para {emprestimo_obj.colaborador.nome}'
-            )
-            
             messages.success(request, 'Empréstimo criado com sucesso!')
-            return redirect('lista_emprestimos')
-    else:
-        form = EmprestimoForm()
+            return redirect('lista_emprestimos')  # Ou o nome da sua URL de lista
+            
+        except Exception as e:
+            messages.error(request, f'Erro ao criar empréstimo: {str(e)}')
     
-    return render(request, 'form_emprestimo.html', {'form': form, 'titulo': 'Criar Empréstimo'})
+    # GET request - mostrar formulário
+    equipamentos = equipamento.objects.all()
+    colaboradores = colaborador.objects.all()
+    
+    # CORRIJA ESTA LINHA - use o nome correto do template
+    return render(request, 'partials/emprestimos/criar_emprestimo.html', {
+        'equipamentos': equipamentos,
+        'colaboradores': colaboradores
+    })
 
 def detalhes_emprestimo(request, pk):
     emprestimo_obj = get_object_or_404(emprestimo, pk=pk)
     historico = historico_emprestimo.objects.filter(emprestimo=emprestimo_obj).order_by('-data_alteracao')
     
-    return render(request, 'detalhes_emprestimo.html', {
+    return render(request, 'partials/emprestimos/detalhes_emprestimo.html', {
         'emprestimo': emprestimo_obj,
         'historico': historico
     })
+
+def lista_emprestimos(request):
+    emprestimos = emprestimo.objects.all().order_by('-data_emprestimo')
+    return render(request, 'lista_emprestimos.html', {'emprestimos': emprestimos})
 
 @require_POST
 def devolver_emprestimo(request, pk):
@@ -215,10 +225,10 @@ def devolver_emprestimo(request, pk):
     emprestimo_obj.status = 'devolvido'
     emprestimo_obj.save()
     
-    # Aumentar o estoque do equipamento
-    equipamento_obj = emprestimo_obj.equipamento
-    equipamento_obj.estoque += 1
-    equipamento_obj.save()
+    # Aumentar o estoque do produto
+    produto_obj = emprestimo_obj.produto
+    produto_obj.estoque += 1
+    produto_obj.save()
     
     # Criar histórico
     historico_emprestimo.objects.create(
@@ -249,25 +259,26 @@ def marcar_atraso(request, pk):
 
 # Dashboard e relatórios
 def dashboard(request):
-    total_equipamentos = equipamento.objects.filter(ativo=True).count()
+    total_equipamentos = equipamento.objects.count()
     total_emprestimos_ativos = emprestimo.objects.filter(status='ativo').count()
     total_emprestimos_atraso = emprestimo.objects.filter(status='em atraso').count()
-    total_colaboradores = cadastro.objects.count()
-    
-    # Últimos empréstimos
-    ultimos_emprestimos = emprestimo.objects.all().order_by('-data_emprestimo')[:5]
-    
-    # Equipamentos com estoque baixo
-    equipamentos_estoque_baixo = equipamento.objects.filter(estoque__lte=2, ativo=True)
-    
-    return render(request, 'dashboard.html', {
+    total_colaboradores = colaborador.objects.count()
+
+    ultimos_emprestimos = emprestimo.objects.order_by('-data_emprestimo')[:5]
+    equipamentos_estoque_baixo = equipamento.objects.filter(estoque__lt=5)
+
+    context = {
         'total_equipamentos': total_equipamentos,
         'total_emprestimos_ativos': total_emprestimos_ativos,
         'total_emprestimos_atraso': total_emprestimos_atraso,
         'total_colaboradores': total_colaboradores,
         'ultimos_emprestimos': ultimos_emprestimos,
-        'equipamentos_estoque_baixo': equipamentos_estoque_baixo
-    })
+        'equipamentos_estoque_baixo': equipamentos_estoque_baixo,
+    }
+
+    # sempre usa o caminho do app
+    return render(request, 'partials/dashboard.html', context)
+    
 
 # API para buscar equipamentos disponíveis
 def api_equipamentos_disponiveis(request):
@@ -276,5 +287,5 @@ def api_equipamentos_disponiveis(request):
 
 # API para buscar colaboradores
 def api_colaboradores(request):
-    colaboradores = cadastro.objects.all().values('id', 'nome')
+    colaboradores = colaborador.objects.all().values('id', 'nome')
     return JsonResponse(list(colaboradores), safe=False)

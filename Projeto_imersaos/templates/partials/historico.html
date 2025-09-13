@@ -1,0 +1,43 @@
+<div class="section-content">
+    <h2>📋 Histórico</h2>
+    <div class="card">
+        <div class="card-header">
+            <h3>Histórico de Empréstimos</h3>
+        </div>
+        <div class="card-body">
+            <div class="filters">
+                <input type="date" id="filter-date-from" placeholder="De">
+                <input type="date" id="filter-date-to" placeholder="Até">
+                <button class="btn btn-secondary">Filtrar</button>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Colaborador</th>
+                            <th>Equipamento</th>
+                            <th>Ação</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for historico in historico_emprestimos %}
+                        <tr>
+                            <td>{{ historico.data_alteracao|date:"d/m/Y H:i" }}</td>
+                            <td>{{ historico.emprestimo.colaborador.nome }}</td>
+                            <td>{{ historico.emprestimo.equipamento.nome }}</td>
+                            <td>{{ historico.descricao_alteracao }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center">Nenhum registro no histórico</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

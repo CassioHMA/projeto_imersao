@@ -46,14 +46,17 @@ class emprestimo(models.Model):
         ('em atraso', 'em atraso'),
         ('devolvido', 'devolvido'), 
     ]
-    equipamento = models.ForeignKey(equipamento, on_delete=models.CASCADE)
-    colaborador = models.ForeignKey(cadastro, on_delete=models.CASCADE)
+    produto = models.ForeignKey(equipamento, on_delete=models.CASCADE)  # ← Use 'produto' aqui
+    colaborador = models.ForeignKey(colaborador, on_delete=models.CASCADE)
     data_emprestimo = models.DateTimeField(auto_now_add=True)
     data_devolucao = models.DateTimeField(null=True, blank=True)
-    status = models.CharField(max_length=20, choices=status_choices, default='ativo')   
+    status = models.CharField(max_length=20, choices=status_choices, default='ativo') 
 
     def __str__(self):
-        return f"{self.colaborador.nome} alugou {self.equipamento.nome} em {self.data_emprestimo}"
+        return f"{self.colaborador.nome} - {self.produto.nome}" 
+
+    def __str__(self):
+        return f"{self.colaborador.nome} alugou {self.produto.nome} em {self.data_emprestimo}"
     def marcar_devolucao(self):
         self.data_devolucao = timezone.now()
         self.save() 
