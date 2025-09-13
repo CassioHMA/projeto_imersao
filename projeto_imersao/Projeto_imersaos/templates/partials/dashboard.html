@@ -1,0 +1,17 @@
+<div class="dashboard-cards">
+    <div class="card">
+        <div class="card-title">Total de Equipamentos</div>
+        <div class="card-value" id="total-equipamentos">
+            {{ total_equipamentos|default:"0" }}
+        </div>
+        <div class="card-icon">💻</div>
+    </div>
+    <div class="card">
+        <div class="card-title">Empréstimos Ativos</div>
+        <div class="card-value" id="emprestimos-ativos">
+            {{ emprestimos_ativos|default:"0" }}
+        </div>
+        <div class="card-icon">📦</div>
+    </div>
+    <!-- ... resto do conteúdo do dashboard -->
+</div>
