@@ -57,7 +57,9 @@ ROOT_URLCONF = 'projeto_imersao.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'Projeto_imersaos' / 'templates'],
+        'DIRS': [BASE_DIR / 'Projeto_imersaos' / 'templates',
+                 BASE_DIR / 'templates', ],
+    
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

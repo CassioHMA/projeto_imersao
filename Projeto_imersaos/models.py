@@ -46,7 +46,7 @@ class emprestimo(models.Model):
         ('em atraso', 'em atraso'),
         ('devolvido', 'devolvido'), 
     ]
-    produto = models.ForeignKey(equipamento, on_delete=models.CASCADE)
+    equipamento = models.ForeignKey(equipamento, on_delete=models.CASCADE)
     colaborador = models.ForeignKey(cadastro, on_delete=models.CASCADE)
     data_emprestimo = models.DateTimeField(auto_now_add=True)
     data_devolucao = models.DateTimeField(null=True, blank=True)
