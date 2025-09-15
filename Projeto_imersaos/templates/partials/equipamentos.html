@@ -1,50 +1,215 @@
-<div class="section-content">
-    <h2>💻 Equipamentos</h2>
-    <div class="card">
-        <div class="card-header">
-            <h3>Lista de Equipamentos</h3>
-            <button class="btn btn-primary" onclick="showModal('modal-equipamento')">
-                Novo Equipamento
-            </button>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Nome</th>
-                            <th>Descrição</th>
-                            <th>Preço</th>
-                            <th>Estoque</th>
-                            <th>Status</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for equipamento in equipamentos %}
-                        <tr>
-                            <td>{{ equipamento.nome }}</td>
-                            <td>{{ equipamento.descricao|truncatewords:5 }}</td>
-                            <td>R$ {{ equipamento.preco }}</td>
-                            <td>{{ equipamento.estoque }}</td>
-                            <td>
-                                <span class="status-badge {% if equipamento.ativo %}active{% else %}inactive{% endif %}">
-                                    {% if equipamento.ativo %}Ativo{% else %}Inativo{% endif %}
-                                </span>
-                            </td>
-                            <td>
-                                <button class="btn btn-sm btn-info">Editar</button>
-                                <button class="btn btn-sm btn-danger">Excluir</button>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="6" class="text-center">Nenhum equipamento cadastrado</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Equipamentos{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>💻 Equipamentos</h2>
+        <button class="btn btn-primary" onclick="showModal('modal-equipamento')">
+            <i class="fas fa-plus"></i> Novo Equipamento
+        </button>
+    </div>
+    <div class="card-body">
+        <!-- Mensagens do Django -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Descrição</th>
+                        <th>Preço</th>
+                        <th>Estoque</th>
+                        <th>Status</th>
+                        <th>Data Cadastro</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for equipamento in equipamentos %}
+                    <tr>
+                        <td>{{ equipamento.nome }}</td>
+                        <td>{{ equipamento.descricao|truncatewords:5|default:"-" }}</td>
+                        <td>R$ {{ equipamento.preco }}</td>
+                        <td>{{ equipamento.estoque }}</td>
+                        <td>
+                            <span class="status-badge {% if equipamento.ativo %}status-ativo{% else %}status-inativo{% endif %}">
+                                {% if equipamento.ativo %}Ativo{% else %}Inativo{% endif %}
+                            </span>
+                        </td>
+                        <td>{{ equipamento.data_cadastro|date:"d/m/Y" }}</td>
+                        <td>
+                            <<button class="btn-icon btn-edit" title="Editar" 
+                                    onclick="editarEquipamento({{ equipamento.id }})">
+                                <i class="fas fa-edit"></i>
+                            </button>>
+                            <form method="POST" action="{% url 'excluir_equipamento' equipamento.id %}" 
+                                  style="display:inline;" onsubmit="return confirm('Tem certeza que deseja excluir este equipamento?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-icon btn-delete" title="Excluir">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">Nenhum equipamento cadastrado</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
+
+<!-- Modal para adicionar/editar equipamento -->
+<div id="modal-equipamento" class="modal">
+    <div class="modal-content">
+        <h3 id="modal-titulo-equipamento">Novo Equipamento</h3>
+        <form id="form-equipamento" method="POST" action="{% url 'equipamentos' %}">
+            {% csrf_token %}
+            <input type="hidden" id="equipamento_id" name="equipamento_id" value="">
+            
+            <div class="form-group">
+                <label for="id_nome">Nome do Equipamento</label>
+                {{ form.nome }}
+                {% if form.nome.errors %}
+                    <div class="error">{{ form.nome.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="id_descricao">Descrição</label>
+                {{ form.descricao }}
+                {% if form.descricao.errors %}
+                    <div class="error">{{ form.descricao.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_preco">Preço (R$)</label>
+                    {{ form.preco }}
+                    {% if form.preco.errors %}
+                        <div class="error">{{ form.preco.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="id_estoque">Quantidade em Estoque</label>
+                    {{ form.estoque }}
+                    {% if form.estoque.errors %}
+                        <div class="error">{{ form.estoque.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="id_ativo">Status</label>
+                {{ form.ativo }}
+                {% if form.ativo.errors %}
+                    <div class="error">{{ form.ativo.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="modal-buttons">
+                <button type="submit" class="btn btn-primary">Salvar</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('modal-equipamento')">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Função para preencher o modal com dados do equipamento para edição
+function editarEquipamento(id) {
+    // Buscar dados do equipamento via AJAX
+    fetch(`/equipamentos/editar/${id}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Preencher o formulário com os dados
+                document.getElementById('equipamento_id').value = data.equipamento.id;
+                document.getElementById('id_nome').value = data.equipamento.nome;
+                document.getElementById('id_descricao').value = data.equipamento.descricao;
+                document.getElementById('id_preco').value = data.equipamento.preco;
+                document.getElementById('id_estoque').value = data.equipamento.estoque;
+                document.getElementById('id_ativo').value = data.equipamento.ativo;
+                
+                // Atualizar título do modal
+                document.getElementById('modal-titulo-equipamento').textContent = 'Editar Equipamento';
+                
+                // Mostrar modal
+                showModal('modal-equipamento');
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert('Erro ao carregar dados do equipamento');
+        });
+}
+
+// Limpar formulário quando abrir para novo equipamento
+document.querySelector('[onclick="showModal(\'modal-equipamento\')"]').addEventListener('click', function() {
+    document.getElementById('modal-titulo-equipamento').textContent = 'Novo Equipamento';
+    document.getElementById('form-equipamento').reset();
+    document.getElementById('equipamento_id').value = '';
+});
+
+// Funções para mostrar e fechar modais
+function showModal(modalId) {
+    document.getElementById(modalId).style.display = 'block';
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+}
+</script>
+
+<style>
+/* Estilos específicos para a página de equipamentos */
+.form-row {
+    display: flex;
+    gap: 15px;
+}
+
+.form-row .form-group {
+    flex: 1;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.error {
+    color: #dc3545;
+    font-size: 0.875em;
+    margin-top: 5px;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+</style>
+{% endblock %}

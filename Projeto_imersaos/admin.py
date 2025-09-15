@@ -1,7 +1,11 @@
 from django.contrib import admin
-from .models import equipamento, emprestimo, colaborador, cadastro, usuario
+from .models import Equipamentos, emprestimo, colaborador, cadastro, usuario
 
 admin.site.register(cadastro)
+admin.site.register(usuario)
+admin.site.register(colaborador)
+admin.site.register(Equipamentos)
+
 
 @admin.register(emprestimo)
 class EmprestimoAdmin(admin.ModelAdmin):

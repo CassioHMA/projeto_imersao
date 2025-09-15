@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from .models import usuario, cadastro, colaborador, equipamento, emprestimo, historico_emprestimo
+from .models import usuario, cadastro, colaborador, Equipamentos, emprestimo, historico_emprestimo
 from .forms import UsuarioForm, CadastroForm, ColaboradorForm, EquipamentoForm, EmprestimoForm
 from django.utils import timezone
 from django.db.models import Q
@@ -113,40 +113,61 @@ def deletar_colaborador(request, pk):
     return redirect('lista_colaboradores')
 
 # Views para Equipamento
-def lista_equipamentos(request):
-    equipamentos = equipamento.objects.filter(ativo=True).order_by('-date_added')
-    return render(request, 'lista_equipamentos.html', {'equipamentos': equipamentos})
-
-def criar_equipamento(request):
+def Equipamentos(request):
+    # Obter todos os equipamentos do banco de dados
+    equipamentos = Equipamentos.objects.all()
+    
+    # Verificar se é uma requisição POST (envio de formulário)
     if request.method == 'POST':
         form = EquipamentoForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Equipamento criado com sucesso!')
-            return redirect('lista_equipamentos')
+            messages.success(request, 'Equipamento salvo com sucesso!')
+            return redirect('equipamentos')
     else:
         form = EquipamentoForm()
-    return render(request, 'form_equipamento.html', {'form': form, 'titulo': 'Criar Equipamento'})
+    
+    context = {
+        'equipamentos': equipamentos,
+        'form': form
+    }
+    return render(request, 'equipamentos.html', context)
 
-def editar_equipamento(request, pk):
-    equipamento_obj = get_object_or_404(equipamento, pk=pk)
+def editar_equipamento(request, id):
+    equipamento = get_object_or_404(Equipamentos, id=id)
+    
     if request.method == 'POST':
-        form = EquipamentoForm(request.POST, instance=equipamento_obj)
+        form = EquipamentoForm(request.POST, instance=equipamento)
         if form.is_valid():
             form.save()
             messages.success(request, 'Equipamento atualizado com sucesso!')
-            return redirect('lista_equipamentos')
+            return redirect('equipamentos')
     else:
-        form = EquipamentoForm(instance=equipamento_obj)
-    return render(request, 'form_equipamento.html', {'form': form, 'titulo': 'Editar Equipamento'})
+        form = EquipamentoForm(instance=equipamento)
+    
+    context = {
+        'form': form,
+        'equipamento': equipamento,
+        'editar': True
+    }
+    return render(request, 'equipamentos.html', context)
 
-@require_POST
-def deletar_equipamento(request, pk):
-    equipamento_obj = get_object_or_404(equipamento, pk=pk)
-    equipamento_obj.ativo = False
-    equipamento_obj.save()
-    messages.success(request, 'Equipamento desativado com sucesso!')
-    return redirect('lista_equipamentos')
+def excluir_equipamento(request, id):
+    equipamento = get_object_or_404(Equipamentos, id=id)
+    
+    if request.method == 'POST':
+        equipamento.delete()
+        messages.success(request, 'Equipamento excluído com sucesso!')
+        return redirect('equipamentos')
+    
+    context = {
+        'equipamento': equipamento
+    }
+    return render(request, 'confirmar_exclusao.html', context)
+
+def api_equipamentos(request):
+    equipamentos = Equipamentos.objects.all().values('id', 'nome', 'descricao', 'preco', 'estoque', 'ativo')
+    return JsonResponse(list(equipamentos), safe=False)
 
 # Views para Empréstimo
 def lista_emprestimos(request):
@@ -184,13 +205,13 @@ def criar_emprestimo(request):
             emprestimo_obj.save()
             
             messages.success(request, 'Empréstimo criado com sucesso!')
-            return redirect('lista_emprestimos')  # Ou o nome da sua URL de lista
+            return redirect('partials/emprestimos/lista_emprestimos')  # Ou o nome da sua URL de lista
             
         except Exception as e:
             messages.error(request, f'Erro ao criar empréstimo: {str(e)}')
     
     # GET request - mostrar formulário
-    equipamentos = equipamento.objects.all()
+    equipamentos = Equipamentos.objects.all()
     colaboradores = colaborador.objects.all()
     
     # CORRIJA ESTA LINHA - use o nome correto do template
@@ -210,7 +231,7 @@ def detalhes_emprestimo(request, pk):
 
 def lista_emprestimos(request):
     emprestimos = emprestimo.objects.all().order_by('-data_emprestimo')
-    return render(request, 'lista_emprestimos.html', {'emprestimos': emprestimos})
+    return render(request, 'partials/emprestimos/lista_emprestimos.html', {'emprestimos': emprestimos})
 
 @require_POST
 def devolver_emprestimo(request, pk):
@@ -218,7 +239,7 @@ def devolver_emprestimo(request, pk):
     
     if emprestimo_obj.esta_devolvido():
         messages.warning(request, 'Este empréstimo já foi devolvido!')
-        return redirect('lista_emprestimos')
+        return redirect('partials/emprestimos/lista_emprestimos')
     
     # Marcar devolução
     emprestimo_obj.marcar_devolucao()
@@ -237,7 +258,7 @@ def devolver_emprestimo(request, pk):
     )
     
     messages.success(request, 'Empréstimo devolvido com sucesso!')
-    return redirect('lista_emprestimos')
+    return redirect('partials/emprestimos/lista_emprestimos')
 
 @require_POST
 def marcar_atraso(request, pk):
@@ -255,17 +276,17 @@ def marcar_atraso(request, pk):
         
         messages.warning(request, 'Empréstimo marcado como em atraso!')
     
-    return redirect('detalhes_emprestimo', pk=pk)
+    return redirect('partials/emprestimos/detalhes_emprestimo', pk=pk)
 
 # Dashboard e relatórios
 def dashboard(request):
-    total_equipamentos = equipamento.objects.count()
+    total_equipamentos = Equipamentos.objects.count()
     total_emprestimos_ativos = emprestimo.objects.filter(status='ativo').count()
     total_emprestimos_atraso = emprestimo.objects.filter(status='em atraso').count()
     total_colaboradores = colaborador.objects.count()
 
     ultimos_emprestimos = emprestimo.objects.order_by('-data_emprestimo')[:5]
-    equipamentos_estoque_baixo = equipamento.objects.filter(estoque__lt=5)
+    equipamentos_estoque_baixo = Equipamentos.objects.filter(estoque__lt=5)
 
     context = {
         'total_equipamentos': total_equipamentos,
@@ -282,7 +303,7 @@ def dashboard(request):
 
 # API para buscar equipamentos disponíveis
 def api_equipamentos_disponiveis(request):
-    equipamentos = equipamento.objects.filter(ativo=True, estoque__gt=0).values('id', 'nome')
+    equipamentos = Equipamentos.objects.filter(ativo=True, estoque__gt=0).values('id', 'nome')
     return JsonResponse(list(equipamentos), safe=False)
 
 # API para buscar colaboradores

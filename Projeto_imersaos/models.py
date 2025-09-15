@@ -28,17 +28,22 @@ class colaborador(models.Model):
 
     def __str__(self):  
         return self.nome + " - " + self.setor + " - " + self.contato
-
-class equipamento(models.Model):
-    nome = models.CharField(max_length=200)
-    descricao = models.TextField()
-    preco = models.DecimalField(max_digits=10, decimal_places=2)
-    estoque = models.IntegerField()
-    date_added = models.DateTimeField(auto_now_add=True)
-    ativo = models.BooleanField(default=True)
-
+    
+class Equipamentos(models.Model):
+    nome = models.CharField(max_length=100, verbose_name='Nome do Equipamento')
+    descricao = models.TextField(verbose_name='Descrição', blank=True, null=True)
+    preco = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Preço (R$)')
+    estoque = models.IntegerField(verbose_name='Quantidade em Estoque', default=0)
+    ativo = models.BooleanField(verbose_name='Ativo', default=True)
+    data_cadastro = models.DateTimeField(auto_now_add=True, verbose_name='Data de Cadastro')
+    
+    class Meta:
+        verbose_name = 'Equipamento'
+        verbose_name_plural = 'Equipamentos'
+        ordering = ['nome']
+    
     def __str__(self):
-        return self.nome + " - " + str(self.produto.nome) + " - " + str(self.data_emprestimo)
+        return self.nome
     
 class emprestimo(models.Model):
     status_choices = [
@@ -46,7 +51,7 @@ class emprestimo(models.Model):
         ('em atraso', 'em atraso'),
         ('devolvido', 'devolvido'), 
     ]
-    produto = models.ForeignKey(equipamento, on_delete=models.CASCADE)  # ← Use 'produto' aqui
+    produto = models.ForeignKey(Equipamentos, on_delete=models.CASCADE)  # ← Use 'produto' aqui
     colaborador = models.ForeignKey(colaborador, on_delete=models.CASCADE)
     data_emprestimo = models.DateTimeField(auto_now_add=True)
     data_devolucao = models.DateTimeField(null=True, blank=True)
@@ -70,4 +75,5 @@ class historico_emprestimo(models.Model):
 
     def __str__(self):
         return f"Alteração em {self.emprestimo} em {self.data_alteracao}"   
+    
 
