@@ -692,3 +692,29 @@ input:focus, select:focus, textarea:focus {
 .status-pending {
     background-color: var(--warning-color);
 }
+
+.sidebar a.menu-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    color: white;
+    text-decoration: none;
+    transition: var(--transition);
+    border-left: 4px solid transparent;
+}
+
+.sidebar a.menu-item:hover {
+    background-color: var(--dark-color);
+    text-decoration: none;
+    color: white;
+}
+
+.sidebar a.menu-item.active {
+    background-color: var(--secondary-color);
+    border-left-color: white;
+}
+
+.sidebar a.menu-item i {
+    margin-right: 10px;
+    font-size: 18px;
+}

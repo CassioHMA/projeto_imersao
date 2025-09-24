@@ -1,16 +1,16 @@
 from django.contrib import admin
-from .models import Equipamentos, emprestimo, colaborador, cadastro, usuario
+from .models import Equipamento, EmprestimoEquipamento, Colaborador, Usuario
 
-admin.site.register(cadastro)
-admin.site.register(usuario)
-admin.site.register(colaborador)
-admin.site.register(Equipamentos)
+admin.site.register(Usuario)
+admin.site.register(Colaborador)
+admin.site.register(Equipamento)
 
 
-@admin.register(emprestimo)
+@admin.register(EmprestimoEquipamento)
 class EmprestimoAdmin(admin.ModelAdmin):
-    list_display = ['produto', 'get_colaborador', 'data_emprestimo', 'status']
+    list_display = ['get_equipamento', 'get_colaborador', 'data_emprestimo', 'status']
     list_filter = ['status', 'data_emprestimo']
+    search_fields = ['equipamento__nome', 'colaborador__nome']
     
     def get_equipamento(self, obj):
         return obj.equipamento.nome  # ou o campo que você quer mostrar

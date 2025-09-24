@@ -115,40 +115,71 @@ function updateUserPermissions() {
 
 /**
  * Configura a navegação do menu
+ *//**
+ * Configuração da navegação do menu
  */
 function setupMenuNavigation() {
+    // Apenas adiciona comportamento de active aos itens clicados
     document.querySelectorAll('.menu-item').forEach(item => {
-        if (!item.onclick) { // Evita sobrepor eventos existentes
-            item.addEventListener('click', function() {
-                // Remove classe active de todos os itens do menu
-                document.querySelectorAll('.menu-item').forEach(i => {
-                    i.classList.remove('active');
-                });
-                
-                // Adiciona classe active ao item clicado
-                this.classList.add('active');
-                
-                // Esconde todas as seções
-                document.querySelectorAll('.section').forEach(section => {
-                    section.classList.remove('active');
-                });
-                
-                // Mostra a seção correspondente
-                const target = this.getAttribute('data-target');
-                const targetSection = document.getElementById(target);
-                if (targetSection) {
-                    targetSection.classList.add('active');
-                    
-                    // Atualiza o título da página
-                    document.querySelector('.page-title').textContent = this.textContent.trim();
-                    
-                    // Carrega dados específicos da seção
-                    loadSectionData(target);
-                }
+        item.addEventListener('click', function(e) {
+            if (this.getAttribute('href') === '#') {
+                e.preventDefault(); // Previne comportamento padrão para links vazios
+            }
+            
+            // Remove active de todos os itens
+            document.querySelectorAll('.menu-item').forEach(i => {
+                i.classList.remove('active');
             });
+            
+            // Adiciona active ao item clicado
+            this.classList.add('active');
+        });
+    });
+    
+    // Destaca o menu atual baseado na URL
+    highlightCurrentMenu();
+}
+
+/**
+ * Destaca o item do menu correspondente à página atual
+ */
+function highlightCurrentMenu() {
+    const menuItems = document.querySelectorAll('.menu-item');
+    
+    // Remove active de todos os itens primeiro
+    menuItems.forEach(item => item.classList.remove('active'));
+    
+    // Tenta encontrar o item ativo baseado na URL atual
+    const currentUrlName = window.CURRENT_URL;
+    let activeFound = false;
+    
+    menuItems.forEach(item => {
+        const href = item.getAttribute('href');
+        if (href && href !== '#' && currentUrlName) {
+            // Verifica se a URL nomeada corresponde
+            if (href.includes(currentUrlName)) {
+                item.classList.add('active');
+                activeFound = true;
+            }
         }
     });
+    
+    // Fallback: se não encontrou, ativa o dashboard
+    if (!activeFound && currentUrlName === 'dashboard') {
+        const dashboardItem = document.querySelector('.menu-item[data-target="dashboard"]');
+        if (dashboardItem) {
+            dashboardItem.classList.add('active');
+        }
+    }
 }
+
+/**
+ * Inicializa a aplicação quando o DOM estiver carregado
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    setupMenuNavigation();
+    // ... restante do seu código de inicialização
+});
 
 /**
  * Configura a navegação por abas

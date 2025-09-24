@@ -1,27 +1,29 @@
 from django import forms
-from .models import usuario, cadastro, colaborador, Equipamentos, emprestimo, historico_emprestimo
+from .models import Usuario, Colaborador, Equipamento, EmprestimoEquipamento
 
 class UsuarioForm(forms.ModelForm):
     class Meta:
-        model = usuario
+        model = Usuario
         fields = ['nome', 'email', 'senha']
-
-
-class CadastroForm(forms.ModelForm):
-    class Meta:
-        model = cadastro
-        fields = ['nome', 'idade', 'locacao', 'contato']
-
+        widgets = {
+            'nome': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'senha': forms.PasswordInput(attrs={'class': 'form-control'}),
+        }
 
 class ColaboradorForm(forms.ModelForm):
     class Meta:
-        model = colaborador
+        model = Colaborador
         fields = ['nome', 'setor', 'contato']
-
+        widgets = {
+            'nome': forms.TextInput(attrs={'class': 'form-control'}),
+            'setor': forms.TextInput(attrs={'class': 'form-control'}),
+            'contato': forms.TextInput(attrs={'class': 'form-control'}),
+        }
 
 class EquipamentoForm(forms.ModelForm):
     class Meta:
-        model = Equipamentos
+        model = Equipamento
         fields = ['nome', 'descricao', 'preco', 'estoque', 'ativo']
         widgets = {
             'nome': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nome do equipamento'}),
@@ -38,17 +40,19 @@ class EquipamentoForm(forms.ModelForm):
             'ativo': 'Status',
         }
 
-
 class EmprestimoForm(forms.ModelForm):
     class Meta:
-        model = emprestimo
-        fields = ['produto', 'colaborador', 'data_devolucao', 'status']
-        widget = {
-            
+        model = EmprestimoEquipamento
+        fields = ['equipamento', 'colaborador', 'data_devolucao', 'status']
+        widgets = {
+            'equipamento': forms.Select(attrs={'class': 'form-control'}),
+            'colaborador': forms.Select(attrs={'class': 'form-control'}),
+            'data_devolucao': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
+            'status': forms.Select(attrs={'class': 'form-control'}),
         }
-
-
-class HistoricoEmprestimoForm(forms.ModelForm):
-    class Meta:
-        model = historico_emprestimo
-        fields = ['emprestimo', 'descricao_alteracao']
+        labels = {
+            'equipamento': 'Equipamento',
+            'colaborador': 'Colaborador',
+            'data_devolucao': 'Data de Devolução',
+            'status': 'Status',
+        }
