@@ -47,7 +47,7 @@ def editar_usuario(request, pk):
 # Views para Colaborador
 def lista_colaboradores(request):
     colaboradores = Colaborador.objects.all().order_by('-date_added')
-    return render(request, 'lista_colaboradores.html', {'colaboradores': colaboradores})
+    return render(request, 'partials/colaboradores.html', {'colaboradores': colaboradores})
 
 def criar_colaborador(request):
     if request.method == 'POST':
@@ -87,7 +87,7 @@ def lista_equipamentos(request):
         'equipamentos': equipamentos,
         'form': form
     }
-    return render(request, 'equipamentos.html', context)
+    return render(request, 'partials/equipamentos.html', context)
 
 def criar_equipamento(request):
     if request.method == 'POST':
@@ -103,7 +103,7 @@ def criar_equipamento(request):
         'form': form,
         'criar': True
     }
-    return render(request, 'equipamentos.html', context)
+    return render(request, 'partials/equipamentos.html', context)
 
 def editar_equipamento(request, id):
     equipamento = get_object_or_404(Equipamento, id=id)
@@ -122,7 +122,7 @@ def editar_equipamento(request, id):
         'equipamento': equipamento,
         'editar': True
     }
-    return render(request, 'equipamentos.html', context)
+    return render(request, 'partials/equipamentos.html', context)
 
 def excluir_equipamento(request, id):
     equipamento = get_object_or_404(Equipamento, id=id)
@@ -170,7 +170,7 @@ def emprestimo_equipamento(request):
         'form': form,
         'emprestimos': emprestimos
     }
-    return render(request, 'emprestimos.html', context)
+    return render(request, 'partials/emprestimos.html', context)
 
 
 
