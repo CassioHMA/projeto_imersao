@@ -1,33 +1,8 @@
 {% extends 'base.html' %}
 
-{% block title %}Equipamentos - Sistema de Empréstimos{% endblock %}
-
-{% block title %}Dashboard{% endblock %}    
+{% block title %}Dashboard{% endblock %}
 
 {% block content %}
-
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Sistema de Empréstimos</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .stats { display: flex; gap: 20px; margin-bottom: 30px; }
-        .stat-card { border: 1px solid #ddd; padding: 20px; border-radius: 5px; text-align: center; }
-        .stat-number { font-size: 24px; font-weight: bold; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .card { border: 1px solid #ddd; padding: 20px; border-radius: 5px; }
-        .list-item { padding: 10px; border-bottom: 1px solid #eee; }
-        .badge { padding: 4px 8px; border-radius: 4px; color: white; }
-        .badge-ativo { background-color: green; }
-        .badge-em_atraso { background-color: orange; }
-        .badge-devolvido { background-color: gray; }
-        .badge-warning { background-color: red; }
-    </style>
-</head>
-<body>
     <h1>Dashboard - Sistema de Empréstimos</h1>
     
     <div class="stats">
@@ -94,7 +69,4 @@
             <a href="/cadastros/criar/">Novo Cadastro</a>
         </p>
     </div>
-</body>
-</html>
-
 {% endblock %}

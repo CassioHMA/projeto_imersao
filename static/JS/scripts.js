@@ -693,7 +693,7 @@ async function loadEquipamentos() {
 }
 
 function renderEquipamentos(equipamentos) {
-    const tbody = document.querySelector('#tabela-equipamentos tbody');
+    const tbody = document.querySelector('#tabela-equipamentos-body');
     if (!tbody) return;
     
     tbody.innerHTML = '';
@@ -709,22 +709,96 @@ function renderEquipamentos(equipamentos) {
     
     equipamentos.forEach(equipamento => {
         const row = document.createElement('tr');
+        // Lógica para definir o status visualmente
+        const statusClass = equipamento.quantidade_disponivel > 0 ? 'status-ativo' : 'status-inativo';
+        const statusText = equipamento.quantidade_disponivel > 0 ? 'Disponível' : 'Indisponível';
+
         row.innerHTML = `
-            <td>${equipamento.id}</td>
             <td>${equipamento.nome}</td>
             <td>${equipamento.tipo || '-'}</td>
             <td>${equipamento.quantidade_total}</td>
             <td>${equipamento.quantidade_disponivel}</td>
             <td>${equipamento.data_validade ? formatDate(equipamento.data_validade) : '-'}</td>
             <td>
-                <button class="btn btn-primary btn-sm" onclick="editarEquipamento(${equipamento.id})">Editar</button>
-                ${USER_PERFIL === 'Administrador' ? 
-                    `<button class="btn btn-danger btn-sm" onclick="confirmarExclusaoEquipamento(${equipamento.id})">Excluir</button>` : 
-                    ''}
+                // Adiciona o status badge, alinhado com o template
+                <span class="status-badge ${statusClass}">${statusText}</span>
+            </td>
+            <td>
+                // Adiciona os botões de ação com ícones, alinhados com o template
+                <button class="btn-icon btn-edit" title="Editar" onclick="editarEquipamento(${equipamento.id})"><i class="fas fa-edit"></i></button>
+                <button class="btn-icon btn-delete" title="Excluir" onclick="confirmarExclusaoEquipamento(${equipamento.id})"><i class="fas fa-trash"></i></button>
             </td>
         `;
         tbody.appendChild(row);
     });
+}
+
+/**
+ * Preenche formulário para editar equipamento
+ */
+async function editarEquipamento(id) {
+    try {
+        const equipamento = await apiRequest(`/equipamentos/${id}/`);
+        
+        document.getElementById('equipamento-id').value = equipamento.id;
+        document.getElementById('equipamento-nome').value = equipamento.nome;
+        document.getElementById('equipamento-tipo').value = equipamento.tipo || '';
+        document.getElementById('equipamento-descricao').value = equipamento.descricao || '';
+        document.getElementById('equipamento-quantidade-total').value = equipamento.quantidade_total;
+        document.getElementById('equipamento-quantidade-disponivel').value = equipamento.quantidade_disponivel;
+        document.getElementById('equipamento-data-validade').value = equipamento.data_validade || '';
+
+        
+        document.getElementById('modal-titulo-equipamento').textContent = 'Editar Equipamento';
+        showEquipamentoModal();
+    } catch (error) {
+        console.error('Erro ao carregar equipamento:', error);
+        showError('Erro ao carregar dados do equipamento');
+    }
+}
+
+/**
+ * Mostra o modal de equipamento (para criação/edição)
+ */
+function showEquipamentoModal() {
+    document.getElementById('modal-equipamento').style.display = 'block';
+}
+
+/**
+ * Esconde o modal de equipamento e reseta o formulário
+ */
+function hideEquipamentoModal() {
+    document.getElementById('modal-equipamento').style.display = 'none';
+    resetEquipamentoForm(); // Reseta o formulário e limpa o ID oculto
+    document.getElementById('modal-titulo-equipamento').textContent = 'Novo Equipamento'; // Reseta o título
+}
+
+/**
+ * Confirma exclusão de equipamento
+ */
+function confirmarExclusaoEquipamento(id) {
+    showModal( // Usando o modal de confirmação genérico de scripts.js
+        'Confirmar Exclusão',
+        'Tem certeza que deseja excluir este equipamento? Esta ação não pode ser desfeita.',
+        () => excluirEquipamento(id)
+    );
+}
+
+/**
+ * Exclui equipamento
+ */
+async function excluirEquipamento(id) {
+    try {
+        await apiRequest(`/equipamentos/${id}/`, {
+            method: 'DELETE'
+        });
+        showSuccess('Equipamento excluído com sucesso!');
+        await loadEquipamentos();
+        await loadSelectOptions(); // Atualiza selects de equipamentos
+    } catch (error) {
+        console.error('Erro ao excluir equipamento:', error);
+        showError('Erro ao excluir equipamento');
+    }
 }
 
 // ==============================================
@@ -1002,6 +1076,20 @@ function setupActionButtons() {
         cancelarColaboradorBtn.addEventListener('click', hideColaboradorForm);
     }
     
+    // Botão novo equipamento
+    const novoEquipamentoBtn = document.querySelector('[onclick="showEquipamentoModal()"]');
+    if (novoEquipamentoBtn) {
+        novoEquipamentoBtn.addEventListener('click', function() {
+            hideEquipamentoModal(); // Reseta o formulário e o título antes de mostrar
+            showEquipamentoModal(); // Mostra o modal
+        });
+    }
+
+    // Botão cancelar equipamento (dentro do modal)
+    const cancelarEquipamentoModalBtn = document.querySelector('#modal-equipamento .btn-secondary');
+    if (cancelarEquipamentoModalBtn) {
+        cancelarEquipamentoModalBtn.addEventListener('click', hideEquipamentoModal);
+    }
     // Botão cancelar equipamento
     const cancelarEquipamentoBtn = document.getElementById('cancelar-equipamento');
     if (cancelarEquipamentoBtn) {
@@ -1018,14 +1106,6 @@ function setupActionButtons() {
     const filtrarHistoricoBtn = document.getElementById('filtrar-historico');
     if (filtrarHistoricoBtn) {
         filtrarHistoricoBtn.addEventListener('click', filtrarHistorico);
-    }
-}
-
-function resetEquipamentoForm() {
-    const form = document.getElementById('form-equipamento');
-    if (form) {
-        form.reset();
-        document.getElementById('equipamento-id').value = '';
     }
 }
 
@@ -1091,9 +1171,13 @@ function renderHistorico(historico) {
 window.editarColaborador = editarColaborador;
 window.confirmarExclusaoColaborador = confirmarExclusaoColaborador;
 window.registrarDevolucao = registrarDevolucao;
+window.editarEquipamento = editarEquipamento; // Exporta a nova função
+window.confirmarExclusaoEquipamento = confirmarExclusaoEquipamento; // Exporta a nova função
+window.showEquipamentoModal = showEquipamentoModal; // Exporta a nova função
+window.hideEquipamentoModal = hideEquipamentoModal; // Exporta a nova função
 window.switchToSection = switchToSection;
 window.showColaboradorForm = showColaboradorForm;
 window.hideColaboradorForm = hideColaboradorForm;
-window.resetEquipamentoForm = resetEquipamentoForm;
+window.resetEquipamentoForm = resetEquipamentoForm; // Garante que está exportada
 window.exportRelatorio = exportRelatorio;
 window.filtrarHistorico = filtrarHistorico;

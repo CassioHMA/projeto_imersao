@@ -193,7 +193,7 @@ def dashboard(request):
         'equipamentos_estoque_baixo': equipamentos_estoque_baixo,
     }
 
-    return render(request, 'dashboard.html', context)
+    return render(request, 'partials/dashboard.html', context)
     
 
 # API para buscar equipamentos disponíveis

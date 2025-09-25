@@ -7,7 +7,7 @@
 <div class="card">
     <div class="card-header">
         <h2>💻 Equipamentos</h2>
-        <button class="btn btn-primary" onclick="showModal('modal-equipamento')">
+        <button class="btn btn-primary" onclick="showEquipamentoModal()">
             <i class="fas fa-plus"></i> Novo Equipamento
         </button>
     </div>
@@ -26,44 +26,41 @@
                 <thead>
                     <tr>
                         <th>Nome</th>
-                        <th>Descrição</th>
-                        <th>Preço</th>
-                        <th>Estoque</th>
+                        <th>Tipo</th>
+                        <th>Qtd. Total</th>
+                        <th>Qtd. Disponível</th>
+                        <th>Validade</th>
                         <th>Status</th>
-                        <th>Data Cadastro</th>
                         <th>Ações</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="tabela-equipamentos-body">
                     {% for equipamento in equipamentos %}
                     <tr>
                         <td>{{ equipamento.nome }}</td>
-                        <td>{{ equipamento.descricao|truncatewords:5|default:"-" }}</td>
-                        <td>R$ {{ equipamento.preco }}</td>
-                        <td>{{ equipamento.estoque }}</td>
+                        <td>{{ equipamento.tipo|default:"-" }}</td>
+                        <td>{{ equipamento.quantidade_total }}</td>
+                        <td>{{ equipamento.quantidade_disponivel }}</td>
+                        <td>{{ equipamento.data_validade|date:"d/m/Y"|default:"-" }}</td>
                         <td>
-                            <span class="status-badge {% if equipamento.ativo %}status-ativo{% else %}status-inativo{% endif %}">
-                                {% if equipamento.ativo %}Ativo{% else %}Inativo{% endif %}
+                            <span class="status-badge {% if equipamento.quantidade_disponivel > 0 %}status-ativo{% else %}status-inativo{% endif %}">
+                                {% if equipamento.quantidade_disponivel > 0 %}Disponível{% else %}Indisponível{% endif %}
                             </span>
                         </td>
-                        <td>{{ equipamento.data_cadastro|date:"d/m/Y" }}</td>
                         <td>
-                            <<button class="btn-icon btn-edit" title="Editar" 
-                                    onclick="editarEquipamento({{ equipamento.id }})">
+                            <button class="btn-icon btn-edit" title="Editar" 
+                                    onclick="editarEquipamento('{{ equipamento.id }}')">
                                 <i class="fas fa-edit"></i>
-                            </button>>
-                            <form method="POST" action="{% url 'excluir_equipamento' equipamento.id %}" 
-                                  style="display:inline;" onsubmit="return confirm('Tem certeza que deseja excluir este equipamento?');">
-                                {% csrf_token %}
-                                <button type="submit" class="btn-icon btn-delete" title="Excluir">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
+                            </button>
+                            <button class="btn-icon btn-delete" title="Excluir"
+                                    onclick="confirmarExclusaoEquipamento('{{ equipamento.id }}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="7" class="text-center">Nenhum equipamento cadastrado</td>
+                        <td colspan="7" class="text-center">Nenhum equipamento cadastrado.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -72,58 +69,46 @@
     </div>
 </div>
 
-<!-- Modal para adicionar/editar equipamento -->
 <div id="modal-equipamento" class="modal">
     <div class="modal-content">
         <h3 id="modal-titulo-equipamento">Novo Equipamento</h3>
-        <form id="form-equipamento" method="POST" action="{% url 'equipamentos' %}">
-            {% csrf_token %}
-            <input type="hidden" id="equipamento_id" name="equipamento_id" value="">
+        <form id="form-equipamento">
+            <input type="hidden" id="equipamento-id" name="equipamento_id" value="">
             
             <div class="form-group">
-                <label for="id_nome">Nome do Equipamento</label>
-                {{ form.nome }}
-                {% if form.nome.errors %}
-                    <div class="error">{{ form.nome.errors }}</div>
-                {% endif %}
+                <label for="equipamento-nome">Nome do Equipamento</label>
+                <input type="text" id="equipamento-nome" name="nome" class="form-control" required>
             </div>
             
             <div class="form-group">
-                <label for="id_descricao">Descrição</label>
-                {{ form.descricao }}
-                {% if form.descricao.errors %}
-                    <div class="error">{{ form.descricao.errors }}</div>
-                {% endif %}
+                <label for="equipamento-tipo">Tipo</label>
+                <input type="text" id="equipamento-tipo" name="tipo" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="equipamento-descricao">Descrição</label>
+                <textarea class="form-control" id="equipamento-descricao" name="descricao"></textarea>
             </div>
             
             <div class="form-row">
                 <div class="form-group">
-                    <label for="id_preco">Preço (R$)</label>
-                    {{ form.preco }}
-                    {% if form.preco.errors %}
-                        <div class="error">{{ form.preco.errors }}</div>
-                    {% endif %}
+                    <label for="equipamento-quantidade-total">Quantidade Total</label>
+                    <input type="number" id="equipamento-quantidade-total" name="quantidade_total" class="form-control" required min="0">
                 </div>
                 <div class="form-group">
-                    <label for="id_estoque">Quantidade em Estoque</label>
-                    {{ form.estoque }}
-                    {% if form.estoque.errors %}
-                        <div class="error">{{ form.estoque.errors }}</div>
-                    {% endif %}
+                    <label for="equipamento-quantidade-disponivel">Quantidade Disponível</label>
+                    <input type="number" id="equipamento-quantidade-disponivel" name="quantidade_disponivel" class="form-control" required min="0">
                 </div>
             </div>
             
             <div class="form-group">
-                <label for="id_ativo">Status</label>
-                {{ form.ativo }}
-                {% if form.ativo.errors %}
-                    <div class="error">{{ form.ativo.errors }}</div>
-                {% endif %}
+                <label for="equipamento-data-validade">Data de Validade (Opcional)</label>
+                <input type="date" id="equipamento-data-validade" name="data_validade" class="form-control">
             </div>
             
             <div class="modal-buttons">
                 <button type="submit" class="btn btn-primary">Salvar</button>
-                <button type="button" class="btn btn-secondary" onclick="closeModal('modal-equipamento')">Cancelar</button>
+                <button type="button" class="btn btn-secondary" onclick="hideEquipamentoModal()">Cancelar</button>
             </div>
         </form>
     </div>
@@ -131,85 +116,6 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-// Função para preencher o modal com dados do equipamento para edição
-function editarEquipamento(id) {
-    // Buscar dados do equipamento via AJAX
-    fetch(`/equipamentos/editar/${id}/`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Preencher o formulário com os dados
-                document.getElementById('equipamento_id').value = data.equipamento.id;
-                document.getElementById('id_nome').value = data.equipamento.nome;
-                document.getElementById('id_descricao').value = data.equipamento.descricao;
-                document.getElementById('id_preco').value = data.equipamento.preco;
-                document.getElementById('id_estoque').value = data.equipamento.estoque;
-                document.getElementById('id_ativo').value = data.equipamento.ativo;
-                
-                // Atualizar título do modal
-                document.getElementById('modal-titulo-equipamento').textContent = 'Editar Equipamento';
-                
-                // Mostrar modal
-                showModal('modal-equipamento');
-            }
-        })
-        .catch(error => {
-            console.error('Erro:', error);
-            alert('Erro ao carregar dados do equipamento');
-        });
-}
 
-// Limpar formulário quando abrir para novo equipamento
-document.querySelector('[onclick="showModal(\'modal-equipamento\')"]').addEventListener('click', function() {
-    document.getElementById('modal-titulo-equipamento').textContent = 'Novo Equipamento';
-    document.getElementById('form-equipamento').reset();
-    document.getElementById('equipamento_id').value = '';
-});
 
-// Funções para mostrar e fechar modais
-function showModal(modalId) {
-    document.getElementById(modalId).style.display = 'block';
-}
-
-function closeModal(modalId) {
-    document.getElementById(modalId).style.display = 'none';
-}
-</script>
-
-<style>
-/* Estilos específicos para a página de equipamentos */
-.form-row {
-    display: flex;
-    gap: 15px;
-}
-
-.form-row .form-group {
-    flex: 1;
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 600;
-}
-
-.error {
-    color: #dc3545;
-    font-size: 0.875em;
-    margin-top: 5px;
-}
-
-.text-center {
-    text-align: center;
-}
-
-.table-responsive {
-    overflow-x: auto;
-}
-</style>
 {% endblock %}
