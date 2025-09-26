@@ -7,6 +7,7 @@ from .forms import UsuarioForm, ColaboradorForm, EquipamentoForm, EmprestimoForm
 from django.utils import timezone
 from django.db import transaction
 from django.contrib.auth.hashers import make_password
+import json
 
 
 # Views para Usuario
@@ -58,7 +59,7 @@ def criar_colaborador(request):
             return redirect('lista_colaboradores')
     else:
         form = ColaboradorForm()
-    return render(request, 'form_colaborador.html', {'form': form, 'titulo': 'Criar Colaborador'})
+    return render(request, 'partials/form_colaborador.html', {'form': form, 'titulo': 'Criar Colaborador'})
 
 def editar_colaborador(request, pk):
     colaborador_obj = get_object_or_404(Colaborador, pk=pk)
@@ -70,7 +71,7 @@ def editar_colaborador(request, pk):
             return redirect('lista_colaboradores')
     else:
         form = ColaboradorForm(instance=colaborador_obj)
-    return render(request, 'form_colaborador.html', {'form': form, 'titulo': 'Editar Colaborador'})
+    return render(request, 'partials/form_colaborador.html', {'form': form, 'titulo': 'Editar Colaborador'})
 
 @require_POST
 def deletar_colaborador(request, pk):
@@ -138,8 +139,36 @@ def excluir_equipamento(request, id):
     return render(request, 'confirmar_exclusao.html', context)
 
 def api_equipamentos(request):
-    equipamentos = Equipamento.objects.all().values('id', 'nome', 'descricao', 'preco', 'estoque', 'ativo')
-    return JsonResponse(list(equipamentos), safe=False)
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            form = EquipamentoForm(data)
+            if form.is_valid():
+                equipamento = form.save()
+                return JsonResponse({
+                    'id': equipamento.id,
+                    'nome': equipamento.nome,
+                    'descricao': equipamento.descricao,
+                    'preco': str(equipamento.preco), # Convert Decimal to string for JSON
+                    'estoque': equipamento.estoque,
+                    'ativo': equipamento.ativo,
+                }, status=201)
+            else:
+                return JsonResponse({'errors': form.errors}, status=400)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'JSON inválido.'}, status=400)
+
+    # Keep the original GET functionality, but serialize properly
+    equipamentos = Equipamento.objects.all()
+    data = [{
+        'id': eq.id, 
+        'nome': eq.nome, 
+        'descricao': eq.descricao, 
+        'preco': str(eq.preco), # Convert Decimal to string
+        'estoque': eq.estoque, 
+        'ativo': eq.ativo
+    } for eq in equipamentos]
+    return JsonResponse(data, safe=False)
 
 
 # Views para Empréstimo de Equipamento

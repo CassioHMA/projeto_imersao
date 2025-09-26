@@ -43,6 +43,7 @@ body {
     position: fixed;
     height: 100vh;
     overflow-y: auto;
+    z-index: 1;
 }
 
 .logo {
@@ -83,6 +84,8 @@ body {
     padding: 20px;
     margin-left: 250px;
     width: calc(100% - 250px);
+    position: relative;
+    z-index: 2;
 }
 
 .header {

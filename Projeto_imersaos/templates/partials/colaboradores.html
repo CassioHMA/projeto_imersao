@@ -9,9 +9,9 @@
     <div class="card">
         <div class="card-header">
             <h3>Lista de Colaboradores</h3>
-            <button class="btn btn-primary" onclick="showModal('modal-colaborador')">
+            <a href="{% url 'criar_colaborador' %}" class="btn btn-primary">
                 Novo Colaborador
-            </button>
+            </a>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -19,27 +19,28 @@
                     <thead>
                         <tr>
                             <th>Nome</th>
-                            <th>Idade</th>
-                            <th>Localização</th>
+                            <th>Setor</th>
                             <th>Contato</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for cadastro in cadastros %}
+                        {% for colaborador in colaboradores %}
                         <tr>
-                            <td>{{ cadastro.nome }}</td>
-                            <td>{{ cadastro.idade }}</td>
-                            <td>{{ cadastro.locacao }}</td>
-                            <td>{{ cadastro.contato }}</td>
+                            <td>{{ colaborador.nome }}</td>
+                            <td>{{ colaborador.setor }}</td>
+                            <td>{{ colaborador.contato }}</td>
                             <td>
-                                <button class="btn btn-sm btn-info">Editar</button>
-                                <button class="btn btn-sm btn-danger">Excluir</button>
+                                <a href="{% url 'editar_colaborador' colaborador.pk %}" class="btn btn-sm btn-info">Editar</a>
+                                <form action="{% url 'deletar_colaborador' colaborador.pk %}" method="post" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja excluir este colaborador?');">Excluir</button>
+                                </form>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="5" class="text-center">Nenhum colaborador cadastrado</td>
+                            <td colspan="4" class="text-center">Nenhum colaborador cadastrado</td>
                         </tr>
                         {% endfor %}
                     </tbody>

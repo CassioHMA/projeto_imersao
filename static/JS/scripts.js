@@ -29,9 +29,9 @@ const defaultHeaders = {
  * Inicializa a aplicação quando o DOM estiver carregado
  */
 document.addEventListener('DOMContentLoaded', function() {
-    initializeApp();
-    setupEventListeners();
-    checkAuthentication();
+    // initializeApp();
+    // setupEventListeners();
+    // checkAuthentication();
 });
 
 /**
@@ -63,13 +63,13 @@ function initializeApp() {
  */
 function setupEventListeners() {
     // Navegação do menu
-    setupMenuNavigation();
+    // setupMenuNavigation();
     
     // Navegação por abas
     setupTabNavigation();
     
     // Formulários
-    setupFormHandlers();
+    // setupFormHandlers();
     
     // Botões de ação
     setupActionButtons();
@@ -486,11 +486,10 @@ async function handleEquipamentoSubmit(event) {
     
     const formData = {
         nome: document.getElementById('equipamento-nome').value,
-        tipo: document.getElementById('equipamento-tipo').value,
         descricao: document.getElementById('equipamento-descricao').value || null,
-        quantidade_total: parseInt(document.getElementById('equipamento-quantidade-total').value),
-        quantidade_disponivel: parseInt(document.getElementById('equipamento-quantidade-disponivel').value),
-        data_validade: document.getElementById('equipamento-data-validade').value || null
+        preco: parseFloat(document.getElementById('equipamento-preco').value),
+        estoque: parseInt(document.getElementById('equipamento-estoque').value),
+        ativo: document.getElementById('equipamento-ativo').value === 'true'
     };
     
     const equipamentoId = document.getElementById('equipamento-id').value;
@@ -701,7 +700,7 @@ function renderEquipamentos(equipamentos) {
     if (!equipamentos || equipamentos.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="7" class="text-center">Nenhum equipamento encontrado</td>
+                <td colspan="6" class="text-center">Nenhum equipamento encontrado</td>
             </tr>
         `;
         return;
@@ -710,21 +709,18 @@ function renderEquipamentos(equipamentos) {
     equipamentos.forEach(equipamento => {
         const row = document.createElement('tr');
         // Lógica para definir o status visualmente
-        const statusClass = equipamento.quantidade_disponivel > 0 ? 'status-ativo' : 'status-inativo';
-        const statusText = equipamento.quantidade_disponivel > 0 ? 'Disponível' : 'Indisponível';
+        const statusClass = equipamento.ativo ? 'status-ativo' : 'status-inativo';
+        const statusText = equipamento.ativo ? 'Ativo' : 'Inativo';
 
         row.innerHTML = `
             <td>${equipamento.nome}</td>
-            <td>${equipamento.tipo || '-'}</td>
-            <td>${equipamento.quantidade_total}</td>
-            <td>${equipamento.quantidade_disponivel}</td>
-            <td>${equipamento.data_validade ? formatDate(equipamento.data_validade) : '-'}</td>
+            <td>${equipamento.descricao || '-'}</td>
+            <td>${equipamento.preco}</td>
+            <td>${equipamento.estoque}</td>
             <td>
-                // Adiciona o status badge, alinhado com o template
                 <span class="status-badge ${statusClass}">${statusText}</span>
             </td>
             <td>
-                // Adiciona os botões de ação com ícones, alinhados com o template
                 <button class="btn-icon btn-edit" title="Editar" onclick="editarEquipamento(${equipamento.id})"><i class="fas fa-edit"></i></button>
                 <button class="btn-icon btn-delete" title="Excluir" onclick="confirmarExclusaoEquipamento(${equipamento.id})"><i class="fas fa-trash"></i></button>
             </td>
@@ -771,6 +767,20 @@ function hideEquipamentoModal() {
     document.getElementById('modal-equipamento').style.display = 'none';
     resetEquipamentoForm(); // Reseta o formulário e limpa o ID oculto
     document.getElementById('modal-titulo-equipamento').textContent = 'Novo Equipamento'; // Reseta o título
+}
+
+/**
+ * Reseta o formulário de equipamento
+ */
+function resetEquipamentoForm() {
+    const form = document.getElementById('form-equipamento');
+    if (form) {
+        form.reset();
+    }
+    const equipamentoIdInput = document.getElementById('equipamento-id');
+    if (equipamentoIdInput) {
+        equipamentoIdInput.value = '';
+    }
 }
 
 /**
@@ -1077,7 +1087,7 @@ function setupActionButtons() {
     }
     
     // Botão novo equipamento
-    const novoEquipamentoBtn = document.querySelector('[onclick="showEquipamentoModal()"]');
+    const novoEquipamentoBtn = document.getElementById('novo-equipamento-btn');
     if (novoEquipamentoBtn) {
         novoEquipamentoBtn.addEventListener('click', function() {
             hideEquipamentoModal(); // Reseta o formulário e o título antes de mostrar
