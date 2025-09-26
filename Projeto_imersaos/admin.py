@@ -1,10 +1,21 @@
 from django.contrib import admin
 from .models import Equipamento, EmprestimoEquipamento, Colaborador, Usuario
 
-admin.site.register(Usuario)
-admin.site.register(Colaborador)
-admin.site.register(Equipamento)
+@admin.register(Usuario)
+class UsuarioAdmin(admin.ModelAdmin):
+    list_display = ('nome', 'email', 'date_added')
+    search_fields = ('nome', 'email')
 
+@admin.register(Colaborador)
+class ColaboradorAdmin(admin.ModelAdmin):
+    list_display = ('nome', 'matricula', 'setor', 'date_added')
+    search_fields = ('nome', 'matricula', 'setor')
+
+@admin.register(Equipamento)
+class EquipamentoAdmin(admin.ModelAdmin):
+    list_display = ('nome', 'preco', 'estoque', 'ativo', 'data_cadastro')
+    search_fields = ('nome',)
+    list_filter = ('ativo', 'data_cadastro')
 
 @admin.register(EmprestimoEquipamento)
 class EmprestimoAdmin(admin.ModelAdmin):

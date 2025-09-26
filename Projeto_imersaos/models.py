@@ -17,8 +17,10 @@ class Usuario(models.Model):
     
 class Colaborador(models.Model):
     nome = models.CharField(max_length=200)
+    cpf = models.CharField(max_length=14, blank=True, null=True)
+    matricula = models.CharField(max_length=20, blank=True, null=True)
+    cargo = models.CharField(max_length=100, blank=True, null=True)
     setor = models.CharField(max_length=200)
-    contato = models.CharField(max_length=200)
     date_added = models.DateTimeField(auto_now_add=True)
     
     class Meta:

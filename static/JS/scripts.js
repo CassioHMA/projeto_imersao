@@ -30,7 +30,7 @@ const defaultHeaders = {
  */
 document.addEventListener('DOMContentLoaded', function() {
     // initializeApp();
-    // setupEventListeners();
+    setupEventListeners();
     // checkAuthentication();
 });
 
@@ -446,7 +446,6 @@ async function handleColaboradorSubmit(event) {
     const formData = {
         nome: document.getElementById('colaborador-nome').value,
         cpf: document.getElementById('colaborador-cpf').value,
-        matricula: document.getElementById('colaborador-matricula').value,
         cargo: document.getElementById('colaborador-cargo').value || null,
         setor: document.getElementById('colaborador-setor').value || null
     };
@@ -1077,7 +1076,10 @@ function setupActionButtons() {
     // Botão novo colaborador
     const novoColaboradorBtn = document.getElementById('novo-colaborador');
     if (novoColaboradorBtn) {
-        novoColaboradorBtn.addEventListener('click', showColaboradorForm);
+        novoColaboradorBtn.addEventListener('click', () => {
+            hideColaboradorForm(); // Reseta o formulário antes de mostrar
+            showColaboradorForm();
+        });
     }
     
     // Botão cancelar colaborador

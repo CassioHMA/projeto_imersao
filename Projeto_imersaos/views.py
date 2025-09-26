@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import JsonResponse
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_http_methods
+from django.views.decorators.csrf import csrf_exempt
 from .models import Usuario, Colaborador, Equipamento, EmprestimoEquipamento
 from .forms import UsuarioForm, ColaboradorForm, EquipamentoForm, EmprestimoForm
 from django.utils import timezone
@@ -47,8 +48,9 @@ def editar_usuario(request, pk):
 
 # Views para Colaborador
 def lista_colaboradores(request):
-    colaboradores = Colaborador.objects.all().order_by('-date_added')
-    return render(request, 'partials/colaboradores.html', {'colaboradores': colaboradores})
+    # A view agora apenas renderiza o template base.
+    # Os dados são carregados dinamicamente via API.
+    return render(request, 'partials/colaboradores.html')
 
 def criar_colaborador(request):
     if request.method == 'POST':
@@ -231,6 +233,68 @@ def api_equipamentos_disponiveis(request):
     return JsonResponse(list(equipamentos), safe=False)
 
 # API para buscar colaboradores
+@csrf_exempt
+@require_http_methods(["GET", "POST"])
 def api_colaboradores(request):
-    colaboradores = Colaborador.objects.all().values('id', 'nome')
-    return JsonResponse(list(colaboradores), safe=False)
+    if request.method == 'GET':
+        colaboradores = Colaborador.objects.all().values('id', 'nome', 'cpf', 'matricula', 'cargo', 'setor')
+        return JsonResponse(list(colaboradores), safe=False)
+    
+    elif request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            form = ColaboradorForm(data)
+            if form.is_valid():
+                colaborador = form.save()
+                return JsonResponse({
+                    'id': colaborador.id,
+                    'nome': colaborador.nome,
+                    'cpf': colaborador.cpf,
+                    'matricula': colaborador.matricula,
+                    'cargo': colaborador.cargo,
+                    'setor': colaborador.setor,
+                }, status=201)
+            else:
+                return JsonResponse({'errors': form.errors}, status=400)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'JSON inválido.'}, status=400)
+
+@csrf_exempt
+@require_http_methods(["GET", "PUT", "DELETE"])
+def api_colaborador_detail(request, pk):
+    colaborador = get_object_or_404(Colaborador, pk=pk)
+
+    if request.method == 'GET':
+        data = {
+            'id': colaborador.id,
+            'nome': colaborador.nome,
+            'cpf': colaborador.cpf,
+            'matricula': colaborador.matricula,
+            'cargo': colaborador.cargo,
+            'setor': colaborador.setor,
+        }
+        return JsonResponse(data)
+
+    elif request.method == 'PUT':
+        try:
+            data = json.loads(request.body)
+            form = ColaboradorForm(data, instance=colaborador)
+            if form.is_valid():
+                colaborador = form.save()
+                data = {
+                    'id': colaborador.id,
+                    'nome': colaborador.nome,
+                    'cpf': colaborador.cpf,
+                    'matricula': colaborador.matricula,
+                    'cargo': colaborador.cargo,
+                    'setor': colaborador.setor,
+                }
+                return JsonResponse(data)
+            else:
+                return JsonResponse({'errors': form.errors}, status=400)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'JSON inválido.'}, status=400)
+
+    elif request.method == 'DELETE':
+        colaborador.delete()
+        return JsonResponse({'message': 'Colaborador excluído com sucesso.'}, status=204)

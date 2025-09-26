@@ -28,6 +28,7 @@ urlpatterns = [
     # APIs
     path('api/equipamentos-disponiveis/', views.api_equipamentos_disponiveis, name='api_equipamentos_disponiveis'),
     path('api/colaboradores/', views.api_colaboradores, name='api_colaboradores'),
+    path('api/colaboradores/<int:pk>/', views.api_colaborador_detail, name='api_colaborador_detail'),
     path('api/equipamentos/', views.api_equipamentos, name='api_equipamentos'),
     #
     # path('api/emprestimos/', views.api_emprestimos, name='api_emprestimos'),
