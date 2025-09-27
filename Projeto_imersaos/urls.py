@@ -22,14 +22,14 @@ urlpatterns = [
     path('equipamentos/editar/<int:id>/', views.editar_equipamento, name='editar_equipamento'),
     path('equipamentos/excluir/<int:id>/', views.excluir_equipamento, name='excluir_equipamento'),
     
-    # Empréstimos - Funcionalidade consolidada
-    path('emprestimos/', views.emprestimo_equipamento, name='lista_emprestimos'),
+    # Empréstimos - URLs consolidadas e organizadas
+    path('emprestimos/', views.emprestimo_equipamento, name='emprestimos'),
+    path('emprestimos/', views.emprestimo_equipamento, name='lista_emprestimos'),  # Alias para compatibilidade
+    path('emprestimos/criar/', views.emprestimo_equipamento, name='criar_emprestimo'),  # Mesma view, método POST
     
     # APIs
     path('api/equipamentos-disponiveis/', views.api_equipamentos_disponiveis, name='api_equipamentos_disponiveis'),
     path('api/colaboradores/', views.api_colaboradores, name='api_colaboradores'),
     path('api/colaboradores/<int:pk>/', views.api_colaborador_detail, name='api_colaborador_detail'),
     path('api/equipamentos/', views.api_equipamentos, name='api_equipamentos'),
-    #
-    # path('api/emprestimos/', views.api_emprestimos, name='api_emprestimos'),
 ]

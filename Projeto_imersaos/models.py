@@ -52,8 +52,8 @@ class EmprestimoEquipamento(models.Model):
         ('em_atraso', 'Em Atraso'),
         ('devolvido', 'Devolvido'), 
     ]
-    equipamento = models.ForeignKey(Equipamento, on_delete=models.CASCADE, related_name='emprestimos')
-    colaborador = models.ForeignKey(Colaborador, on_delete=models.CASCADE, related_name='emprestimos')
+    equipamento = models.ForeignKey(Equipamento, on_delete=models.CASCADE, name='equipamento')
+    colaborador = models.ForeignKey(Colaborador, on_delete=models.CASCADE, name='colaborador')
     data_emprestimo = models.DateTimeField(auto_now_add=True)
     data_devolucao = models.DateTimeField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='ativo')
