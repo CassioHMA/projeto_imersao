@@ -23,7 +23,7 @@ urlpatterns = [
     path('equipamentos/excluir/<int:id>/', views.excluir_equipamento, name='excluir_equipamento'),
     
     # Empréstimos - URLs consolidadas e organizadas
-    path('emprestimos/', views.emprestimo_equipamento, name='emprestimos'),
+    #path('emprestimos/', views.emprestimo_equipamento, name='emprestimos'),
     path('emprestimos/', views.emprestimo_equipamento, name='lista_emprestimos'),  # Alias para compatibilidade
     path('emprestimos/criar/', views.emprestimo_equipamento, name='criar_emprestimo'),  # Mesma view, método POST
     

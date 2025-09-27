@@ -29,9 +29,10 @@ const defaultHeaders = {
  * Inicializa a aplicação quando o DOM estiver carregado
  */
 document.addEventListener('DOMContentLoaded', function() {
-    // initializeApp();
+    initializeApp();
     setupEventListeners();
-    // checkAuthentication();
+    checkAuthentication();
+    setupMenuNavigation();
 });
 
 /**
@@ -62,14 +63,11 @@ function initializeApp() {
  * Configura todos os event listeners
  */
 function setupEventListeners() {
-    // Navegação do menu
-    // setupMenuNavigation();
-    
     // Navegação por abas
     setupTabNavigation();
     
     // Formulários
-    // setupFormHandlers();
+    setupFormHandlers();
     
     // Botões de ação
     setupActionButtons();
@@ -114,8 +112,6 @@ function updateUserPermissions() {
 // ==============================================
 
 /**
- * Configura a navegação do menu
- *//**
  * Configuração da navegação do menu
  */
 function setupMenuNavigation() {
@@ -172,14 +168,6 @@ function highlightCurrentMenu() {
         }
     }
 }
-
-/**
- * Inicializa a aplicação quando o DOM estiver carregado
- */
-document.addEventListener('DOMContentLoaded', function() {
-    setupMenuNavigation();
-    // ... restante do seu código de inicialização
-});
 
 /**
  * Configura a navegação por abas
@@ -1164,32 +1152,110 @@ async function filtrarHistorico() {
 }
 
 // ==============================================
-// OUTRAS FUNÇÕES (implementar conforme necessário)
+// OUTRAS FUNÇÕES
 // ==============================================
 
 async function loadHistorico() {
-    // Implementar carregamento do histórico
-}
-
-async function loadUsuarios() {
-    // Implementar carregamento de usuários
+    try {
+        const historico = await apiRequest('/historico/');
+        currentData.historico = historico;
+        renderHistorico(historico);
+    } catch (error) {
+        console.error('Erro ao carregar histórico:', error);
+        showError('Erro ao carregar histórico');
+    }
 }
 
 function renderHistorico(historico) {
-    // Implementar renderização do histórico
+    const tbody = document.querySelector('#tabela-historico tbody');
+    if (!tbody) return;
+
+    tbody.innerHTML = '';
+
+    if (!historico || historico.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" class="text-center">Nenhum registro no histórico</td>
+            </tr>
+        `;
+        return;
+    }
+
+    historico.forEach(item => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${formatDate(item.data_alteracao)}</td>
+            <td>${item.emprestimo_colaborador_nome || '-'}</td>
+            <td>${item.emprestimo_equipamento_nome || '-'}</td>
+            <td>${item.descricao_alteracao || '-'}</td>
+            <td></td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+async function loadUsuarios() {
+    try {
+        const usuarios = await apiRequest('/usuarios/');
+        currentData.usuarios = usuarios;
+        renderUsuarios(usuarios);
+    } catch (error) {
+        console.error('Erro ao carregar usuários:', error);
+        showError('Erro ao carregar lista de usuários');
+    }
+}
+
+function renderUsuarios(usuarios) {
+    const tbody = document.querySelector('#tabela-usuarios tbody');
+    if (!tbody) return;
+
+    tbody.innerHTML = '';
+
+    if (!usuarios || usuarios.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4" class="text-center">Nenhum usuário cadastrado</td>
+            </tr>
+        `;
+        return;
+    }
+
+    usuarios.forEach(usuario => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${usuario.username}</td>
+            <td>${usuario.email}</td>
+            <td>${formatDate(usuario.date_joined)}</td>
+            <td>
+                <button class="btn btn-sm btn-info" onclick="editarUsuario(${usuario.id})">Editar</button>
+                <button class="btn btn-sm btn-danger" onclick="excluirUsuario(${usuario.id})">Excluir</button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function editarUsuario(id) {
+    showError('A edição de usuários ainda não foi implementada.');
+}
+
+function excluirUsuario(id) {
+    showError('A exclusão de usuários ainda não foi implementada.');
 }
 
 // Exportar funções globais para uso em onclick
 window.editarColaborador = editarColaborador;
 window.confirmarExclusaoColaborador = confirmarExclusaoColaborador;
 window.registrarDevolucao = registrarDevolucao;
-window.editarEquipamento = editarEquipamento; // Exporta a nova função
-window.confirmarExclusaoEquipamento = confirmarExclusaoEquipamento; // Exporta a nova função
-window.showEquipamentoModal = showEquipamentoModal; // Exporta a nova função
-window.hideEquipamentoModal = hideEquipamentoModal; // Exporta a nova função
+window.editarEquipamento = editarEquipamento;
+window.confirmarExclusaoEquipamento = confirmarExclusaoEquipamento;
+window.showEquipamentoModal = showEquipamentoModal;
+window.hideEquipamentoModal = hideEquipamentoModal;
 window.switchToSection = switchToSection;
 window.showColaboradorForm = showColaboradorForm;
 window.hideColaboradorForm = hideColaboradorForm;
-window.resetEquipamentoForm = resetEquipamentoForm; // Garante que está exportada
+window.resetEquipamentoForm = resetEquipamentoForm;
 window.exportRelatorio = exportRelatorio;
 window.filtrarHistorico = filtrarHistorico;
+window.editarUsuario = editarUsuario;
+window.excluirUsuario = excluirUsuario;
