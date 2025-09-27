@@ -8,7 +8,11 @@
 
     <!-- Botão para abrir o formulário de novo colaborador -->
     <div class="card-header">
-        <button id="novo-colaborador" class="btn btn-primary">Novo Colaborador</button>
+        <button id="novo-colaborador" class="btn btn-primary"
+            onclick="window.location.href = '{% url 'criar_colaborador' %}'"
+            >Novo Colaborador
+        </button>
+        
     </div>
 
     <!-- Formulário para Adicionar/Editar Colaborador (inicialmente oculto) -->
@@ -17,6 +21,7 @@
             <h3 id="titulo-form-colaborador">Novo Colaborador</h3>
             <form id="form-colaborador-data">
                 {% csrf_token %}
+                {{ form.as_p }}
                 <input type="hidden" id="colaborador-id">
                 
                 <div class="form-group">
@@ -71,9 +76,22 @@
                             <th>Ações</th>
                         </tr>
                     </thead>
+                    <tbody>
+                        <!-- As linhas de dados serão inseridas aqui pelo scripts.js -->
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+document.getElementById('novo-colaborador').addEventListener('click', function() {
+    document.getElementById('form-colaborador').style.display = 'block';
+});
+document.getElementById('cancelar-colaborador').addEventListener('click', function() {
+    document.getElementById('form-colaborador').style.display = 'none';
+});
+</script>
 
 {% endblock %}

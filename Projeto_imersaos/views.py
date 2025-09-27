@@ -191,7 +191,7 @@ def emprestimo_equipamento(request):
                         messages.error(request, 'Equipamento sem estoque disponível.')
             except Exception as e:
                 messages.error(request, f'Ocorreu um erro: {e}')
-            return redirect('emprestimo_equipamento')
+            return redirect('lista_emprestimos')
     else:
         form = EmprestimoForm()
     

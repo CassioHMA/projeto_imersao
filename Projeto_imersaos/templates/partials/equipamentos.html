@@ -7,8 +7,9 @@
 <div class="card">
     <div class="card-header">
         <h2>💻 Equipamentos</h2>
-        <button id="novo-equipamento-btn" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Novo Equipamento
+        <button id="novo-equipamento-btn" class="btn btn-primary"
+         onclick="window.location.href = '{% url 'criar_equipamento' %}'"
+         >Novo Equipamento
         </button>
     </div>
     <div class="card-body">
@@ -109,9 +110,13 @@
         </form>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
-
-
+<script>
+document.getElementById('novo-equipamento').addEventListener('click', function() {
+    document.getElementById('form-equipamento').style.display = 'block';
+});
+document.getElementById('cancelar-equipamento').addEventListener('click', function() {
+    document.getElementById('form-equipamento').style.display = 'none';
+});
+</script>
 {% endblock %}
