@@ -11,9 +11,55 @@
         <button id="novo-colaborador" class="btn btn-primary"
             onclick="window.location.href = '{% url 'criar_colaborador' %}'"
             >Novo Colaborador
-        </button>
-        
+        </button>       
     </div>
+
+    <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>CPF</th>
+                        <th>Matrícula</th>
+                        <th>Cargo</th>
+                        <th>Setor</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+               <tbody id="tabela-colaboradores-body">
+    {% for colaborador in colaboradores %}
+    <tr>
+        <td>{{ colaborador.id }}</td>
+        <td>{{ colaborador.nome }}</td>
+        <td>{{ colaborador.cpf }}</td>
+        <td>{{ colaborador.matricula }}</td>
+        <td>{{ colaborador.cargo }}</td>
+        <td>{{ colaborador.setor }}</td>
+        <td>
+            <span class="status-badge {% if colaborador.ativo %}status-ativo{% else %}status-inativo{% endif %}">
+                {% if colaborador.ativo %}Ativo{% else %}Inativo{% endif %}
+            </span>
+        </td>
+        <td>
+            <button class="btn-icon btn-edit" title="Editar" 
+                    onclick="editarColaborador('{{ colaborador.id }}')">
+                <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn-icon btn-delete" title="Excluir"
+                    onclick="confirmarExclusaoColaborador('{{ colaborador.id }}')">
+                <i class="fas fa-trash"></i>
+            </button>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="7" class="text-center">Nenhum colaborador cadastrado.</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+            </table>
+        </div>
 
     <!-- Formulário para Adicionar/Editar Colaborador (inicialmente oculto) -->
     <div id="form-colaborador" class="card" style="display: none; margin-top: 20px;">
@@ -76,9 +122,7 @@
                             <th>Ações</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <!-- As linhas de dados serão inseridas aqui pelo scripts.js -->
-                    </tbody>
+                    
                 </table>
             </div>
         </div>
