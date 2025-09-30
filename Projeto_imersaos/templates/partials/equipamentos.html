@@ -1,16 +1,13 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Equipamentos{% endblock %}
+{% block page_title %}Equipamentos{% endblock %}
 
 {% block content %}
 <div class="card">
     <div class="card-header">
         <h2>💻 Equipamentos</h2>
-        <button id="novo-equipamento-btn" class="btn btn-primary"
-         onclick="window.location.href = '{% url 'criar_equipamento' %}'"
-         >Novo Equipamento
-        </button>
+<a href="{% url 'criar_equipamento' %}" id="novo-equipamento-btn" class="btn btn-primary">Novo Equipamento</a>
     </div>
     <div class="card-body">
     
@@ -39,14 +36,15 @@
                             </span>
                         </td>
                         <td>
-                            <button class="btn-icon btn-edit" title="Editar" 
-                                    onclick="window.location.href='{% url 'editar_equipamento' pk=equipamento.id %}'">
+                            <a href="{% url 'editar_equipamento' equipamento.pk %}" class="btn-icon btn-edit" title="Editar">
                                 <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn-icon btn-delete" title="Excluir"
-                                    onclick="confirmarExclusaoEquipamento('{% url 'excluir_equipamento' pk=equipamento.id %}')">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                            </a>
+                            <form method="POST" action="{% url 'excluir_equipamento' equipamento.pk %}" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja excluir este equipamento?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-icon btn-delete" title="Excluir">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
                         </td>
                     </tr>
                     {% empty %}

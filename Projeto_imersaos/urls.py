@@ -34,6 +34,7 @@ urlpatterns = [
     # Empréstimos
     # =============================
     path('emprestimos/', views.emprestimo_equipamento, name='lista_emprestimos'),
+    path('emprestimos/devolver/<int:pk>/', views.devolver_emprestimo, name='devolver_emprestimo'),
 
     # =============================
     # APIs

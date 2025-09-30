@@ -1,82 +1,82 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block page_title %}Empréstimos{% endblock %}
+
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-8 offset-md-2">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="card-title mb-0">
-                        <i class="fas fa-plus-circle me-2"></i>Novo Empréstimo
-                    </h3>
-                </div>
-                <div class="card-body">
-                    <!-- Mensagens de alerta -->
-                    {% if messages %}
-                    <div class="mb-4">
-                        {% for message in messages %}
-                        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-
-                    <form method="post" id="form-emprestimo">
-                        {% csrf_token %}
-                        
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="emprestimo-equipamento" class="form-label">Equipamento</label>
-                                <select class="form-select" id="emprestimo-equipamento" name="equipamento" required>
-                                    <option value="" selected disabled>Selecione um equipamento</option>
-                                    {% for equipamento in equipamentos %}
-                                    <option value="{{ equipamento.id }}">{{ equipamento.nome }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            
-                            <div class="col-md-6">
-                                <label for="emprestimo-colaborador" class="form-label">Colaborador</label>
-                                <select class="form-select" id="emprestimo-colaborador" name="colaborador" required>
-                                    <option value="" selected disabled>Selecione um colaborador</option>
-                                    {% for colaborador in colaboradores %}
-                                    <option value="{{ colaborador.id }}">{{ colaborador.nome }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="emprestimo-data" class="form-label">Data do Empréstimo</label>
-                                <input type="date" class="form-control" id="emprestimo-data" name="data_emprestimo" required>
-                            </div>
-                            
-                            <div class="col-md-6">
-                                <label for="emprestimo-data-devolucao" class="form-label">Data de Devolução Prevista</label>
-                                <input type="date" class="form-control" id="emprestimo-data-devolucao" name="data_devolucao_prevista">
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="emprestimo-observacoes" class="form-label">Observações</label>
-                            <textarea class="form-control" id="emprestimo-observacoes" name="observacoes" rows="3"></textarea>
-                        </div>
-                        
-                        <div class="d-flex justify-content-between">
-                            <a href="{% url 'lista_emprestimos' %}" class="btn btn-secondary">
-                                <i class="fas fa-arrow-left me-1"></i> Voltar para Lista
-                            </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-1"></i> Criar Empréstimo
-                            </button>
-                        </div>
-                    </form>
-                </div>
+<div class="card">
+    <div class="card-header">
+        <h2><i class="fas fa-plus-circle me-2"></i>Novo Empréstimo</h2>
+    </div>
+    <div class="card-body">
+        {% if messages %}
+        <div class="mb-4">
+            {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post" id="form-emprestimo">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i> Criar Empréstimo
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header">
+        <h2><i class="fas fa-list-ul me-2"></i>Histórico de Empréstimos</h2>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Equipamento</th>
+                        <th>Colaborador</th>
+                        <th>Data do Empréstimo</th>
+                        <th>Data de Devolução</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for emprestimo in emprestimos %}
+                    <tr>
+                        <td>{{ emprestimo.equipamento.nome }}</td>
+                        <td>{{ emprestimo.colaborador.nome }}</td>
+                        <td>{{ emprestimo.data_emprestimo|date:"d/m/Y H:i" }}</td>
+                        <td>{{ emprestimo.data_devolucao|date:"d/m/Y H:i"|default:"-" }}</td>
+                        <td>
+                            <span class="badge badge-{{ emprestimo.status }}">{{ emprestimo.get_status_display }}</span>
+                        </td>
+                        <td>
+                            {% if emprestimo.status != 'devolvido' %}
+                                <form method="POST" action="{% url 'devolver_emprestimo' emprestimo.pk %}" style="display: inline;" onsubmit="return confirm('Confirmar a devolução deste equipamento?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-success btn-sm" title="Devolver">
+                                        Devolver
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">Nenhum empréstimo registrado.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

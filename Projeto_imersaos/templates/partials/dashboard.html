@@ -1,8 +1,11 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
 
 {% block content %}
+<div class="card">
+    <div class="section-content active" id="dashboard">
     <h1>Dashboard - Sistema de Empréstimos</h1>
     
     <div class="stats">
@@ -60,5 +63,6 @@
             {% endif %}
         </div>
     </div>
-
+</div>
+</div>
 {% endblock %}

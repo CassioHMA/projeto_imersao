@@ -201,7 +201,24 @@ def emprestimo_equipamento(request):
     }
     return render(request, 'partials/emprestimos.html', context)
 
+# API para buscar equipamentos disponíveis
+def api_equipamentos_disponiveis(request):
+    equipamentos = Equipamento.objects.filter(ativo=True, estoque__gt=0).values('id', 'nome')
+    return JsonResponse(list(equipamentos), safe=False)
 
+@require_POST
+def devolver_emprestimo(request, pk):
+    emprestimo = get_object_or_404(EmprestimoEquipamento, pk=pk)
+    try:
+        with transaction.atomic():
+            emprestimo.marcar_devolucao()
+            equipamento = emprestimo.equipamento
+            equipamento.estoque += 1
+            equipamento.save()
+            messages.success(request, f'Equipamento "{equipamento.nome}" devolvido com sucesso.')
+    except Exception as e:
+        messages.error(request, f'Ocorreu um erro ao processar a devolução: {e}')
+    return redirect('lista_emprestimos')
 
 # Dashboard e relatórios
 def dashboard(request):
@@ -225,7 +242,3 @@ def dashboard(request):
     return render(request, 'partials/dashboard.html', context)
     
 
-# API para buscar equipamentos disponíveis
-def api_equipamentos_disponiveis(request):
-    equipamentos = Equipamento.objects.filter(ativo=True, estoque__gt=0).values('id', 'nome')
-    return JsonResponse(list(equipamentos), safe=False)

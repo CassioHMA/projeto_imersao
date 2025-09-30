@@ -56,6 +56,8 @@ class EmprestimoEquipamento(models.Model):
     colaborador = models.ForeignKey(Colaborador, on_delete=models.CASCADE, name='colaborador')
     data_emprestimo = models.DateTimeField(auto_now_add=True)
     data_devolucao = models.DateTimeField(null=True, blank=True)
+    data_devolucao_prevista = models.DateTimeField(null=True, blank=True, verbose_name='Devolução Prevista')
+    observacoes = models.TextField(blank=True, null=True, verbose_name='Observações')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='ativo')
     
     class Meta:
