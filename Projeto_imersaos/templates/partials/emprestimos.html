@@ -9,7 +9,7 @@
     <div class="card">
         <div class="card-header">
             <h3>Lista de Empréstimos</h3>
-            <!-- Futuramente, um botão para adicionar novo empréstimo pode vir aqui -->
+            <a href="{% url 'criar_emprestimo' %}" class="btn btn-primary">Novo Empréstimo</a>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -32,7 +32,7 @@
                             <td><span class="badge badge-{{ emprestimo.status }}">{{ emprestimo.get_status_display }}</span></td>
                             <td>
                                 {% if not emprestimo.esta_devolvido %}
-                                <form action="{% url 'marcar_devolucao_view' emprestimo.pk %}" method="post" class="d-inline">
+                                <form action="{% url 'marcar_devolucao' emprestimo.pk %}" method="post" class="d-inline" onsubmit="return confirm('Confirmar a devolução deste item?');">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-success btn-sm">Marcar Devolução</button>
                                 </form>

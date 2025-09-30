@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block page_title %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<div class="section-content">
+    <h2>📦 {{ titulo }}</h2>
+    <div class="card">
+        <div class="card-body">
+            <form method="post" class="form-container">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    {{ form.as_p }}
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                    <a href="{% url 'lista_emprestimos' %}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
