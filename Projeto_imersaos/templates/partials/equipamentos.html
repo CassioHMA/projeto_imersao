@@ -13,17 +13,9 @@
         </button>
     </div>
     <div class="card-body">
-        <!-- Mensagens do Django -->
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
-        
-        <div class="table-responsive">
-            <table class="data-table">
+    
+    <div class="table-responsive">
+        <table class="data-table">
                 <thead>
                     <tr>
                         <th>Nome</th>
@@ -48,11 +40,11 @@
                         </td>
                         <td>
                             <button class="btn-icon btn-edit" title="Editar" 
-                                    onclick="editarEquipamento('{{ equipamento.id }}')">
+                                    onclick="window.location.href='{% url 'editar_equipamento' pk=equipamento.id %}'">
                                 <i class="fas fa-edit"></i>
                             </button>
                             <button class="btn-icon btn-delete" title="Excluir"
-                                    onclick="confirmarExclusaoEquipamento('{{ equipamento.id }}')">
+                                    onclick="confirmarExclusaoEquipamento('{% url 'excluir_equipamento' pk=equipamento.id %}')">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </td>
@@ -67,56 +59,4 @@
         </div>
     </div>
 </div>
-
-<div id="modal-equipamento" class="modal">
-    <div class="modal-content">
-        <h3 id="modal-titulo-equipamento">Novo Equipamento</h3>
-        <form id="form-equipamento">
-            <input type="hidden" id="equipamento-id" name="equipamento_id" value="">
-            
-            <div class="form-group">
-                <label for="equipamento-nome">Nome do Equipamento</label>
-                <input type="text" id="equipamento-nome" name="nome" class="form-control" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="equipamento-descricao">Descrição</label>
-                <textarea class="form-control" id="equipamento-descricao" name="descricao" rows="3"></textarea>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="equipamento-preco">Preço (R$)</label>
-                    <input type="number" id="equipamento-preco" name="preco" class="form-control" step="0.01" min="0" required>
-                </div>
-                <div class="form-group">
-                    <label for="equipamento-estoque">Quantidade em Estoque</label>
-                    <input type="number" id="equipamento-estoque" name="estoque" class="form-control" required min="0">
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="equipamento-ativo">Status</label>
-                <select id="equipamento-ativo" name="ativo" class="form-control">
-                    <option value="true" selected>Ativo</option>
-                    <option value="false">Inativo</option>
-                </select>
-            </div>
-            
-            <div class="modal-buttons">
-                <button type="submit" class="btn btn-primary">Salvar</button>
-                <button type="button" class="btn btn-secondary" onclick="hideEquipamentoModal()">Cancelar</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<script>
-document.getElementById('novo-equipamento').addEventListener('click', function() {
-    document.getElementById('form-equipamento').style.display = 'block';
-});
-document.getElementById('cancelar-equipamento').addEventListener('click', function() {
-    document.getElementById('form-equipamento').style.display = 'none';
-});
-</script>
 {% endblock %}

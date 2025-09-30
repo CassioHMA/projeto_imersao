@@ -48,9 +48,14 @@ def editar_usuario(request, pk):
 
 # Views para Colaborador
 def lista_colaboradores(request):
-    # A view agora apenas renderiza o template base.
-    # Os dados são carregados dinamicamente via API.
-    return render(request, 'partials/colaboradores.html')
+    colaboradores = Colaborador.objects.all().order_by('nome')
+    form = ColaboradorForm()
+    context = {
+        'colaboradores': colaboradores,
+        'form': form
+    }
+    return render(request, 'partials/colaboradores.html', context)
+
 
 def criar_colaborador(request):
     if request.method == 'POST':
@@ -104,12 +109,12 @@ def criar_equipamento(request):
     
     context = {
         'form': form,
-        'criar': True
+        'titulo': 'Criar Equipamento'
     }
-    return render(request, 'partials/equipamentos.html', context)
+    return render(request, 'partials/form_equipamento.html', context)
 
-def editar_equipamento(request, id):
-    equipamento = get_object_or_404(Equipamento, id=id)
+def editar_equipamento(request, pk):
+    equipamento = get_object_or_404(Equipamento, pk=pk)
     
     if request.method == 'POST':
         form = EquipamentoForm(request.POST, instance=equipamento)
@@ -122,23 +127,16 @@ def editar_equipamento(request, id):
     
     context = {
         'form': form,
-        'equipamento': equipamento,
-        'editar': True
+        'titulo': 'Editar Equipamento'
     }
-    return render(request, 'partials/equipamentos.html', context)
+    return render(request, 'partials/form_equipamento.html', context)
 
-def excluir_equipamento(request, id):
-    equipamento = get_object_or_404(Equipamento, id=id)
-    
-    if request.method == 'POST':
-        equipamento.delete()
-        messages.success(request, 'Equipamento excluído com sucesso!')
-        return redirect('lista_equipamentos')
-    
-    context = {
-        'equipamento': equipamento
-    }
-    return render(request, 'confirmar_exclusao.html', context)
+@require_POST
+def excluir_equipamento(request, pk):
+    equipamento = get_object_or_404(Equipamento, pk=pk)
+    equipamento.delete()
+    messages.success(request, 'Equipamento excluído com sucesso!')
+    return redirect('lista_equipamentos')
 
 def api_equipamentos(request):
     if request.method == 'POST':
