@@ -8,8 +8,8 @@ class UsuarioAdmin(admin.ModelAdmin):
 
 @admin.register(Colaborador)
 class ColaboradorAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'matricula', 'setor', 'date_added')
-    search_fields = ('nome', 'matricula', 'setor')
+    list_display = ('nome', 'id', 'setor', 'date_added')
+    search_fields = ('nome', 'id', 'setor')
 
 @admin.register(Equipamento)
 class EquipamentoAdmin(admin.ModelAdmin):

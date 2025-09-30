@@ -3,138 +3,61 @@
 {% block title %}Colaboradores{% endblock %}
 
 {% block content %}
+<div class="card">
 <div class="section-content active" id="colaboradores">
     <h2>👥 Colaboradores</h2>
-
-    <!-- Botão para abrir o formulário de novo colaborador -->
     <div class="card-header">
-        <button id="novo-colaborador" class="btn btn-primary"
-            >Novo Colaborador
-        </button>       
+        <a href="{% url 'criar_colaborador' %}" class="btn btn-primary">Novo Colaborador</a>
     </div>
 
     <div class="table-responsive">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nome</th>
-                        <th>CPF</th>
-                        <th>Matrícula</th>
-                        <th>Cargo</th>
-                        <th>Setor</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-               <tbody id="tabela-colaboradores-body">
-    {% for colaborador in colaboradores %}
-    <tr>
-        <td>{{ colaborador.id }}</td>
-        <td>{{ colaborador.nome }}</td>
-        <td>{{ colaborador.cpf }}</td>
-        <td>{{ colaborador.matricula }}</td>
-        <td>{{ colaborador.cargo }}</td>
-        <td>{{ colaborador.setor }}</td>
-        <td>
-            <span class="status-badge {% if colaborador.ativo %}status-ativo{% else %}status-inativo{% endif %}">
-                {% if colaborador.ativo %}Ativo{% else %}Inativo{% endif %}
-            </span>
-        </td>
-        <td>
-            <button class="btn-icon btn-edit" title="Editar" 
-                    onclick="editarColaborador('{{ colaborador.id }}')">
-                <i class="fas fa-edit"></i>
-            </button>
-            <button class="btn-icon btn-delete" title="Excluir"
-                    onclick="confirmarExclusaoColaborador('{{ colaborador.id }}')">
-                <i class="fas fa-trash"></i>
-            </button>
-        </td>
-    </tr>
-    {% empty %}
-    <tr>
-        <td colspan="7" class="text-center">Nenhum colaborador cadastrado.</td>
-    </tr>
-    {% endfor %}
-    </tbody>
-            </table>
-        </div>
-
-    <!-- Formulário para Adicionar/Editar Colaborador (inicialmente oculto) -->
-    <div id="form-colaborador" class="card" style="display: none; margin-top: 20px;">
-        <div class="card-body">
-            <h3 id="titulo-form-colaborador">Novo Colaborador</h3>
-            <form id="form-colaborador-data">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <input type="hidden" id="colaborador-id">
-                
-                <div class="form-group">
-                    <label for="colaborador-nome">Nome</label>
-                    <input type="text" id="colaborador-nome" class="form-control" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="colaborador-cpf">CPF</label>
-                    <input type="text" id="colaborador-cpf" class="form-control">
-                </div>
-
-                <div class="form-group">
-                    <label for="colaborador-matricula">Matrícula</label>
-                    <input type="text" id="colaborador-matricula" class="form-control">
-                </div>
-                
-                <div class="form-group">
-                    <label for="colaborador-cargo">Cargo</label>
-                    <input type="text" id="colaborador-cargo" class="form-control">
-                </div>
-                
-                <div class="form-group">
-                    <label for="colaborador-setor">Setor</label>
-                    <input type="text" id="colaborador-setor" class="form-control" required>
-                </div>
-                
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-success">Salvar</button>
-                    <button type="button" id="cancelar-colaborador" class="btn btn-secondary">Cancelar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Tabela de Colaboradores -->
-    <div class="card" style="margin-top: 20px;">
-        <div class="card-header">
-            <h3>Lista de Colaboradores</h3>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table id="tabela-colaboradores" class="data-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nome</th>
-                            <th>CPF</th>
-                            <th>Matrícula</th>
-                            <th>Cargo</th>
-                            <th>Setor</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    
-                </table>
-            </div>
-        </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>CPF</th>
+                    <th>Matrícula</th>
+                    <th>Cargo</th>
+                    <th>Setor</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="tabela-colaboradores-body">
+                {% for colaborador in colaboradores %}
+                <tr>
+                    <td>{{ colaborador.id }}</td>
+                    <td>{{ colaborador.nome }}</td>
+                    <td>{{ colaborador.cpf }}</td>
+                    <td>{{ colaborador.matricula }}</td>
+                    <td>{{ colaborador.cargo }}</td>
+                    <td>{{ colaborador.setor }}</td>
+                    <td>
+                        <span class="status-badge {% if colaborador.ativo %}status-ativo{% else %}status-inativo{% endif %}">
+                            {% if colaborador.ativo %}Ativo{% else %}Inativo{% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{% url 'editar_colaborador' colaborador.pk %}" class="btn-icon btn-edit" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <form method="POST" action="{% url 'deletar_colaborador' colaborador.pk %}" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja excluir este colaborador?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-icon btn-delete" title="Excluir">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center">Nenhum colaborador cadastrado.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
-
-<script>
-document.getElementById('novo-colaborador').addEventListener('click', function() {
-    document.getElementById('form-colaborador').style.display = 'block';
-});
-document.getElementById('cancelar-colaborador').addEventListener('click', function() {
-    document.getElementById('form-colaborador').style.display = 'none';
-});
-</script>
-
+</div>
 {% endblock %}

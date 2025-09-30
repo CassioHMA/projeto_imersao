@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'Projeto_imersaos',
+    'Projeto_imersaos.apps.ProjetoImersaosConfig',
 ]
 
 MIDDLEWARE = [

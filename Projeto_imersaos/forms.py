@@ -14,11 +14,10 @@ class UsuarioForm(forms.ModelForm):
 class ColaboradorForm(forms.ModelForm):
     class Meta:
         model = Colaborador
-        fields = ['nome', 'cpf', 'matricula', 'cargo', 'setor']
+        fields = ['nome', 'cpf', 'cargo', 'setor']
         widgets = {
             'nome': forms.TextInput(attrs={'class': 'form-control'}),
             'cpf': forms.TextInput(attrs={'class': 'form-control'}),
-            'matricula': forms.TextInput(attrs={'class': 'form-control'}),
             'cargo': forms.TextInput(attrs={'class': 'form-control'}),
             'setor': forms.TextInput(attrs={'class': 'form-control'}),
         }
