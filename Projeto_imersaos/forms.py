@@ -44,16 +44,31 @@ class EquipamentoForm(forms.ModelForm):
 class EmprestimoForm(forms.ModelForm):
     class Meta:
         model = EmprestimoEquipamento
-        fields = ['equipamento', 'colaborador', 'data_devolucao', 'status']
+        # Removido 'status' e 'data_devolucao' que são controlados pela lógica do sistema
+        fields = ['equipamento', 'colaborador', 'data_devolucao_prevista', 'observacoes']
         widgets = {
             'equipamento': forms.Select(attrs={'class': 'form-control'}),
             'colaborador': forms.Select(attrs={'class': 'form-control'}),
-            'data_devolucao': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
-            'status': forms.Select(attrs={'class': 'form-control'}),
+            'data_devolucao_prevista': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
+            'observacoes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
         labels = {
             'equipamento': 'Equipamento',
             'colaborador': 'Colaborador',
-            'data_devolucao': 'Data de Devolução',
-            'status': 'Status',
+            'data_devolucao_prevista': 'Devolução Prevista',
+            'observacoes': 'Observações',
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Filtra o queryset para mostrar apenas equipamentos com estoque > 0
+        self.fields['equipamento'].queryset = Equipamento.objects.filter(estoque__gt=0, ativo=True)
+
+    def clean_equipamento(self):
+        """
+        Valida se o equipamento selecionado ainda tem estoque no momento do submit.
+        """
+        equipamento = self.cleaned_data.get('equipamento')
+        if equipamento and equipamento.estoque <= 0:
+            raise forms.ValidationError("Este equipamento não tem estoque disponível para empréstimo.")
+        return equipamento

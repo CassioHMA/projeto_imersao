@@ -33,12 +33,12 @@ urlpatterns = [
     # =============================
     # Empréstimos
     # =============================
-    path('emprestimos/', views.emprestimo_equipamento, name='lista_emprestimos'),
-    path('emprestimos/devolver/<int:pk>/', views.devolver_emprestimo, name='devolver_emprestimo'),
+    path('emprestimos/', views.lista_emprestimos, name='lista_emprestimos'),
+    path('emprestimos/criar/', views.criar_emprestimo, name='criar_emprestimo'),
+    path('emprestimos/devolver/<int:pk>/', views.marcar_devolucao_view, name='marcar_devolucao'),
 
     # =============================
     # APIs
     # =============================
-    path('api/equipamentos-disponiveis/', views.api_equipamentos_disponiveis, name='api_equipamentos_disponiveis'),
     path('api/equipamentos/', views.api_equipamentos, name='api_equipamentos'),
 ]

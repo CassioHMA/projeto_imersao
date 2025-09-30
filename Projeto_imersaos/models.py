@@ -52,28 +52,37 @@ class EmprestimoEquipamento(models.Model):
         ('em_atraso', 'Em Atraso'),
         ('devolvido', 'Devolvido'), 
     ]
-    equipamento = models.ForeignKey(Equipamento, on_delete=models.CASCADE, name='equipamento')
-    colaborador = models.ForeignKey(Colaborador, on_delete=models.CASCADE, name='colaborador')
+    # Usar PROTECT para evitar a exclusão de equipamentos/colaboradores com histórico de empréstimo.
+    equipamento = models.ForeignKey(Equipamento, on_delete=models.PROTECT)
+    colaborador = models.ForeignKey(Colaborador, on_delete=models.PROTECT)
     data_emprestimo = models.DateTimeField(auto_now_add=True)
     data_devolucao = models.DateTimeField(null=True, blank=True)
     data_devolucao_prevista = models.DateTimeField(null=True, blank=True, verbose_name='Devolução Prevista')
     observacoes = models.TextField(blank=True, null=True, verbose_name='Observações')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='ativo')
-    
+
     class Meta:
         verbose_name = 'Empréstimo'
         verbose_name_plural = 'Empréstimos'
+        ordering = ['-data_emprestimo'] # Ordena pelos mais recentes por padrão
 
     def __str__(self):
         return f"{self.colaborador.nome} - {self.equipamento.nome} ({self.get_status_display()})"
 
     def marcar_devolucao(self):
+        """Marca um empréstimo como devolvido, atualiza o status, a data e o estoque do equipamento."""
+        if self.status == 'devolvido':
+            return # Evita processamento desnecessário
+
         self.data_devolucao = timezone.now()
         self.status = 'devolvido'
-        self.save() 
-        
+        self.equipamento.estoque += 1
+        self.equipamento.save()
+        self.save(update_fields=['data_devolucao', 'status'])
+
+    @property
     def esta_devolvido(self):
-        return self.data_devolucao is not None  
+        """Retorna True se o empréstimo já foi devolvido."""
+        return self.status == 'devolvido'
  
     
-

@@ -170,55 +170,49 @@ def api_equipamentos(request):
     } for eq in equipamentos]
     return JsonResponse(data, safe=False)
 
+# Views para EmprestimoEquipamento
+def lista_emprestimos(request):
+    # Usar select_related para otimizar a busca, evitando queries N+1 no template
+    emprestimos = EmprestimoEquipamento.objects.select_related('equipamento', 'colaborador').all()
+    form = EmprestimoForm()
+    context = {
+        'emprestimos': emprestimos,
+        'form': form
+    }
+    return render(request, 'partials/emprestimos.html', context)
 
-# Views para Empréstimo de Equipamento
-def emprestimo_equipamento(request):
+@require_http_methods(["GET", "POST"])
+def criar_emprestimo(request):
     if request.method == 'POST':
         form = EmprestimoForm(request.POST)
         if form.is_valid():
             try:
+                # Garante que as operações com o banco de dados sejam atômicas
                 with transaction.atomic():
                     emprestimo = form.save(commit=False)
+                    
+                    # Lógica de negócio: diminuir o estoque
                     equipamento = emprestimo.equipamento
-                    if equipamento.estoque > 0:
-                        equipamento.estoque -= 1
-                        equipamento.save()
-                        emprestimo.save()
-                        messages.success(request, 'Empréstimo registrado com sucesso!')
-                    else:
-                        messages.error(request, 'Equipamento sem estoque disponível.')
+                    equipamento.estoque -= 1
+                    equipamento.save()
+                    
+                    emprestimo.save() # Agora salva o empréstimo
+                    
+                messages.success(request, 'Empréstimo registrado com sucesso!')
+                return redirect('lista_emprestimos')
             except Exception as e:
-                messages.error(request, f'Ocorreu um erro: {e}')
-            return redirect('lista_emprestimos')
+                messages.error(request, f"Ocorreu um erro ao registrar o empréstimo: {e}")
     else:
         form = EmprestimoForm()
-    
-    emprestimos = EmprestimoEquipamento.objects.select_related('equipamento', 'colaborador').all().order_by('-data_emprestimo')
-    
-    context = {
-        'form': form,
-        'emprestimos': emprestimos
-    }
-    return render(request, 'partials/emprestimos.html', context)
-
-# API para buscar equipamentos disponíveis
-def api_equipamentos_disponiveis(request):
-    equipamentos = Equipamento.objects.filter(ativo=True, estoque__gt=0).values('id', 'nome')
-    return JsonResponse(list(equipamentos), safe=False)
+    return render(request, 'partials/form_emprestimo.html', {'form': form, 'titulo': 'Registrar Novo Empréstimo'})
 
 @require_POST
-def devolver_emprestimo(request, pk):
+def marcar_devolucao_view(request, pk):
     emprestimo = get_object_or_404(EmprestimoEquipamento, pk=pk)
-    try:
-        with transaction.atomic():
-            emprestimo.marcar_devolucao()
-            equipamento = emprestimo.equipamento
-            equipamento.estoque += 1
-            equipamento.save()
-            messages.success(request, f'Equipamento "{equipamento.nome}" devolvido com sucesso.')
-    except Exception as e:
-        messages.error(request, f'Ocorreu um erro ao processar a devolução: {e}')
+    emprestimo.marcar_devolucao() # Chama o método do modelo
+    messages.success(request, f'Devolução do equipamento "{emprestimo.equipamento.nome}" registrada.')
     return redirect('lista_emprestimos')
+
 
 # Dashboard e relatórios
 def dashboard(request):
@@ -241,4 +235,3 @@ def dashboard(request):
 
     return render(request, 'partials/dashboard.html', context)
     
-

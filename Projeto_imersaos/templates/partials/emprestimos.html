@@ -4,79 +4,45 @@
 {% block page_title %}Empréstimos{% endblock %}
 
 {% block content %}
-<div class="card">
-    <div class="card-header">
-        <h2><i class="fas fa-plus-circle me-2"></i>Novo Empréstimo</h2>
-    </div>
-    <div class="card-body">
-        {% if messages %}
-        <div class="mb-4">
-            {% for message in messages %}
-            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            {% endfor %}
+<div class="section-content">
+    <h2>📦 Empréstimos</h2>
+    <div class="card">
+        <div class="card-header">
+            <h3>Lista de Empréstimos</h3>
+            <!-- Futuramente, um botão para adicionar novo empréstimo pode vir aqui -->
         </div>
-        {% endif %}
-
-        <form method="post" id="form-emprestimo">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <div class="d-flex justify-content-end">
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save me-1"></i> Criar Empréstimo
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<div class="card mt-4">
-    <div class="card-header">
-        <h2><i class="fas fa-list-ul me-2"></i>Histórico de Empréstimos</h2>
-    </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Equipamento</th>
-                        <th>Colaborador</th>
-                        <th>Data do Empréstimo</th>
-                        <th>Data de Devolução</th>
-                        <th>Status</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for emprestimo in emprestimos %}
-                    <tr>
-                        <td>{{ emprestimo.equipamento.nome }}</td>
-                        <td>{{ emprestimo.colaborador.nome }}</td>
-                        <td>{{ emprestimo.data_emprestimo|date:"d/m/Y H:i" }}</td>
-                        <td>{{ emprestimo.data_devolucao|date:"d/m/Y H:i"|default:"-" }}</td>
-                        <td>
-                            <span class="badge badge-{{ emprestimo.status }}">{{ emprestimo.get_status_display }}</span>
-                        </td>
-                        <td>
-                            {% if emprestimo.status != 'devolvido' %}
-                                <form method="POST" action="{% url 'devolver_emprestimo' emprestimo.pk %}" style="display: inline;" onsubmit="return confirm('Confirmar a devolução deste equipamento?');">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Equipamento</th>
+                            <th>Colaborador</th>
+                            <th>Data do Empréstimo</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for emprestimo in emprestimos %}
+                        <tr>
+                            <td>{{ emprestimo.equipamento.nome }}</td>
+                            <td>{{ emprestimo.colaborador.nome }}</td>
+                            <td>{{ emprestimo.data_emprestimo|date:"d/m/Y H:i" }}</td>
+                            <td><span class="badge badge-{{ emprestimo.status }}">{{ emprestimo.get_status_display }}</span></td>
+                            <td>
+                                {% if not emprestimo.esta_devolvido %}
+                                <form action="{% url 'marcar_devolucao_view' emprestimo.pk %}" method="post" class="d-inline">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-success btn-sm" title="Devolver">
-                                        Devolver
-                                    </button>
+                                    <button type="submit" class="btn btn-success btn-sm">Marcar Devolução</button>
                                 </form>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="6" class="text-center">Nenhum empréstimo registrado.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
