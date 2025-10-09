@@ -55,6 +55,7 @@ class EmprestimoEquipamento(models.Model):
     # Usar PROTECT para evitar a exclusão de equipamentos/colaboradores com histórico de empréstimo.
     equipamento = models.ForeignKey(Equipamento, on_delete=models.PROTECT)
     colaborador = models.ForeignKey(Colaborador, on_delete=models.PROTECT)
+    quantidade = models.IntegerField(default=1, verbose_name='Quantidade Emprestada')
     data_emprestimo = models.DateTimeField(auto_now_add=True)
     data_devolucao = models.DateTimeField(null=True, blank=True)
     data_devolucao_prevista = models.DateTimeField(null=True, blank=True, verbose_name='Devolução Prevista')
@@ -76,7 +77,7 @@ class EmprestimoEquipamento(models.Model):
 
         self.data_devolucao = timezone.now()
         self.status = 'devolvido'
-        self.equipamento.estoque += 1
+        self.equipamento.estoque += self.quantidade
         self.equipamento.save()
         self.save(update_fields=['data_devolucao', 'status'])
 

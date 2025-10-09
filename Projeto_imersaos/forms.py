@@ -45,30 +45,40 @@ class EmprestimoForm(forms.ModelForm):
     class Meta:
         model = EmprestimoEquipamento
         # Removido 'status' e 'data_devolucao' que são controlados pela lógica do sistema
-        fields = ['equipamento', 'colaborador', 'data_devolucao_prevista', 'observacoes']
+        fields = ['equipamento', 'colaborador', 'quantidade', 'data_devolucao_prevista', 'observacoes']
         widgets = {
             'equipamento': forms.Select(attrs={'class': 'form-control'}),
             'colaborador': forms.Select(attrs={'class': 'form-control'}),
+            'quantidade': forms.NumberInput(attrs={'class': 'form-control', 'min': '1'}),
             'data_devolucao_prevista': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
             'observacoes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
         labels = {
             'equipamento': 'Equipamento',
             'colaborador': 'Colaborador',
+            'quantidade': 'Quantidade',
             'data_devolucao_prevista': 'Devolução Prevista',
             'observacoes': 'Observações',
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Filtra o queryset para mostrar apenas equipamentos com estoque > 0
+        # Filtra o queryset para mostrar apenas equipamentos com estoque > 0 e ativos
         self.fields['equipamento'].queryset = Equipamento.objects.filter(estoque__gt=0, ativo=True)
 
-    def clean_equipamento(self):
+    def clean(self):
         """
-        Valida se o equipamento selecionado ainda tem estoque no momento do submit.
+        Valida se a quantidade solicitada está disponível no estoque do equipamento.
         """
-        equipamento = self.cleaned_data.get('equipamento')
-        if equipamento and equipamento.estoque <= 0:
-            raise forms.ValidationError("Este equipamento não tem estoque disponível para empréstimo.")
-        return equipamento
+        cleaned_data = super().clean()
+        equipamento = cleaned_data.get('equipamento')
+        quantidade = cleaned_data.get('quantidade')
+
+        if equipamento and quantidade:
+            if quantidade <= 0:
+                self.add_error('quantidade', 'A quantidade deve ser um número positivo.')
+            
+            if equipamento.estoque < quantidade:
+                self.add_error('quantidade', f'Estoque insuficiente. Apenas {equipamento.estoque} unidades disponíveis.')
+        
+        return cleaned_data

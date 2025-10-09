@@ -170,6 +170,23 @@ def api_equipamentos(request):
     } for eq in equipamentos]
     return JsonResponse(data, safe=False)
 
+def api_equipamento_detalhes(request, pk):
+    equipamento = get_object_or_404(Equipamento, pk=pk)
+    alugados = EmprestimoEquipamento.objects.filter(equipamento=equipamento, status='ativo').count()
+    data = {
+        'estoque': equipamento.estoque,
+        'alugados': alugados
+    }
+    return JsonResponse(data)
+
+def api_equipamento_detalhes(request, pk):
+    equipamento = get_object_or_404(Equipamento, pk=pk)
+    alugados = EmprestimoEquipamento.objects.filter(equipamento=equipamento, status='ativo').count()
+    data = {
+        'estoque': equipamento.estoque,
+        'alugados': alugados
+    }
+    return JsonResponse(data)
 # Views para EmprestimoEquipamento
 def lista_emprestimos(request):
     # Usar select_related para otimizar a busca, evitando queries N+1 no template
@@ -193,7 +210,7 @@ def criar_emprestimo(request):
                     
                     # Lógica de negócio: diminuir o estoque
                     equipamento = emprestimo.equipamento
-                    equipamento.estoque -= 1
+                    equipamento.estoque -= emprestimo.quantidade
                     equipamento.save()
                     
                     emprestimo.save() # Agora salva o empréstimo

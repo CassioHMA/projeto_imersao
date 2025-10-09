@@ -41,4 +41,5 @@ urlpatterns = [
     # APIs
     # =============================
     path('api/equipamentos/', views.api_equipamentos, name='api_equipamentos'),
+    path('api/equipamentos/<int:pk>/', views.api_equipamento_detalhes, name='api_equipamento_detalhes'),
 ]
