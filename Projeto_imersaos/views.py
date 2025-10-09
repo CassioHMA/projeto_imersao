@@ -234,18 +234,24 @@ def marcar_devolucao_view(request, pk):
 # Dashboard e relatórios
 def dashboard(request):
     total_equipamentos = Equipamento.objects.count()
-    total_emprestimos_ativos = EmprestimoEquipamento.objects.filter(status='ativo').count()
-    total_emprestimos_atraso = EmprestimoEquipamento.objects.filter(status='em_atraso').count()
     total_colaboradores = Colaborador.objects.count()
+
+    # Dados para o gráfico de status de empréstimos
+    emprestimo_status_data = {
+        'ativos': EmprestimoEquipamento.objects.filter(status='ativo').count(),
+        'em_atraso': EmprestimoEquipamento.objects.filter(status='em_atraso').count(),
+        'devolvidos': EmprestimoEquipamento.objects.filter(status='devolvido').count(),
+    }
 
     ultimos_emprestimos = EmprestimoEquipamento.objects.select_related('equipamento', 'colaborador').order_by('-data_emprestimo')[:5]
     equipamentos_estoque_baixo = Equipamento.objects.filter(estoque__lt=5)
 
     context = {
         'total_equipamentos': total_equipamentos,
-        'total_emprestimos_ativos': total_emprestimos_ativos,
-        'total_emprestimos_atraso': total_emprestimos_atraso,
         'total_colaboradores': total_colaboradores,
+        'total_emprestimos_ativos': emprestimo_status_data['ativos'], # Manter para os cards
+        'total_emprestimos_atraso': emprestimo_status_data['em_atraso'], # Manter para os cards
+        'emprestimo_status_json': json.dumps(emprestimo_status_data),
         'ultimos_emprestimos': ultimos_emprestimos,
         'equipamentos_estoque_baixo': equipamentos_estoque_baixo,
     }

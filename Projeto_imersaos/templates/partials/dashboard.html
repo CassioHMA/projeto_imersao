@@ -8,6 +8,7 @@
     <div class="section-content active" id="dashboard">
     <h1>Dashboard - Sistema de Empréstimos</h1>
     
+    <div class ="card">
     <div class="stats">
         <div class="stat-card">
             <div class="stat-number">{{ total_equipamentos }}</div>
@@ -26,28 +27,9 @@
             <div>Colaboradores</div>
         </div>
     </div>
+    </div>
 
-    <div class="grid">
-        <div class="card">
-            <h2>Últimos Empréstimos</h2>
-            {% if ultimos_emprestimos %}
-                {% for emprestimo in ultimos_emprestimos %}
-                    <div class="list-item">
-                        <strong>{{ emprestimo.colaborador.nome }}</strong> - 
-                        {{ emprestimo.equipamento.nome }}
-                        <span class="badge badge-{{ emprestimo.status }}">
-                            {{ emprestimo.status }}
-                        </span>
-                        <br>
-                        <small>{{ emprestimo.data_emprestimo|date:"d/m/Y H:i" }}</small>
-                    </div>
-                {% endfor %}
-            {% else %}
-                <p>Nenhum empréstimo registrado.</p>
-            {% endif %}
-        </div>
-
-        <div class="card">
+    <div class="card">
             <h2>Equipamentos com Estoque Baixo</h2>
             {% if equipamentos_estoque_baixo %}
                 {% for equipamento in equipamentos_estoque_baixo %}
@@ -62,7 +44,82 @@
                 <p>Todos os equipamentos com estoque adequado.</p>
             {% endif %}
         </div>
+
+        <div class="card">
+            <h2>Status dos Empréstimos</h2>
+            <div style="width: 85%; max-width: 400px; margin: auto; padding: 20px;">
+                <canvas id="emprestimosStatusChart"></canvas>
+            </div>
+        </div>
     </div>
+
+<div class="grid">
+        <div class="card">
+            <h2>Últimos Empréstimos</h2>
+            {% if ultimos_emprestimos %}
+                {% for emprestimo in ultimos_emprestimos %}
+                    <div class="list-item">
+                        <strong>{{ emprestimo.colaborador.nome }}</strong> - 
+                        {{ emprestimo.equipamento.nome }}
+                        <span class="badge badge-{{ emprestimo.status }}">
+                            {{ emprestimo.get_status_display }}
+                        </span>
+                        <br>
+                        <small>{{ emprestimo.data_emprestimo|date:"d/m/Y H:i" }}</small>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>Nenhum empréstimo registrado.</p>
+            {% endif %}
+        </div>
+
+        
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('emprestimosStatusChart');
+    if (ctx) {
+        const chartData = JSON.parse('{{ emprestimo_status_json|escapejs }}');
+
+        new Chart(ctx.getContext('2d'), {
+            type: 'pie',
+            data: {
+                labels: ['Ativos', 'Em Atraso', 'Devolvidos'],
+                datasets: [{
+                    label: 'Status dos Empréstimos',
+                    data: [
+                        chartData.ativos,
+                        chartData.em_atraso,
+                        chartData.devolvidos
+                    ],
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.7)', // Blue
+                        'rgba(255, 99, 132, 0.7)',   // Red
+                        'rgba(75, 192, 192, 0.7)'    // Green
+                    ],
+                    borderColor: [
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(75, 192, 192, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: false,
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
 </div>
 </div>
 {% endblock %}
