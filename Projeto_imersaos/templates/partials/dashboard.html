@@ -9,24 +9,16 @@
     <h1>Dashboard - Sistema de Empréstimos</h1>
     
     <div class ="card">
-    <div class="stats">
-        <div class="stat-card">
-            <div class="stat-number">{{ total_equipamentos }}</div>
-            <div>Equipamentos</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number">{{ total_emprestimos_ativos }}</div>
-            <div>Empréstimos Ativos</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number">{{ total_emprestimos_atraso }}</div>
-            <div>Em Atraso</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number">{{ total_colaboradores }}</div>
-            <div>Colaboradores</div>
-        </div>
-    </div>
+        <div class="stats">
+            <div class="card">
+                <table style="width: 50%">
+                    <tr><td>Equipamento: </td><td><class="stat-number">{{ total_equipamentos }}</class></td></tr>
+                    <tr><td>Empréstimos Ativos: </td><td><class="stat-number">{{ total_emprestimos_ativos }}</class></td></tr>
+                    <tr><td>Em Atraso: </td><td><class="stat-number">{{ total_emprestimos_atraso }}</class></td></tr>
+                    <tr><td>Colaboradores: </td><td><class="stat-number">{{ total_colaboradores }}</class></td></tr>
+                </table>
+            </div>
+        </div>  
     </div>
 
     <div class="card">

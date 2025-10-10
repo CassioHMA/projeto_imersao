@@ -204,16 +204,13 @@ def criar_emprestimo(request):
         form = EmprestimoForm(request.POST)
         if form.is_valid():
             try:
-                # Garante que as operações com o banco de dados sejam atômicas
                 with transaction.atomic():
                     emprestimo = form.save(commit=False)
-                    
-                    # Lógica de negócio: diminuir o estoque
                     equipamento = emprestimo.equipamento
                     equipamento.estoque -= emprestimo.quantidade
                     equipamento.save()
                     
-                    emprestimo.save() # Agora salva o empréstimo
+                    emprestimo.save() 
                     
                 messages.success(request, 'Empréstimo registrado com sucesso!')
                 return redirect('lista_emprestimos')
@@ -226,7 +223,7 @@ def criar_emprestimo(request):
 @require_POST
 def marcar_devolucao_view(request, pk):
     emprestimo = get_object_or_404(EmprestimoEquipamento, pk=pk)
-    emprestimo.marcar_devolucao() # Chama o método do modelo
+    emprestimo.marcar_devolucao() 
     messages.success(request, f'Devolução do equipamento "{emprestimo.equipamento.nome}" registrada.')
     return redirect('lista_emprestimos')
 
