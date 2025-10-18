@@ -1,19 +1,31 @@
 from django.test import TestCase
-from .model import Equipamento
+from Projeto_imersaos.models import Colaborador
 
-class EquipamentoModelTest(TestCase):
+class ColaboradorModelTest(TestCase):
+    
+    def setUp(self):
+        """Prepara os dados que serão usados no teste."""
+        self.colaborador_data = {
+            'nome': 'Everton',
+            'cpf': '123.456.789-00',
+            'cargo': 'Lixeiro',
+            'setor': 'Limpeza'
+            # O campo 'ativo' usa o valor padrão (True), então não precisamos defini-lo aqui.
+        }
+
+    def test_criar_colaborador(self):
+        """Testa a criação de um objeto Colaborador."""
+        colaborador = Colaborador.objects.create(**self.colaborador_data)
+        
+        # Verifica se os dados foram salvos corretamente
+        self.assertEqual(colaborador.nome, self.colaborador_data['nome'])
+        self.assertEqual(colaborador.cpf, self.colaborador_data['cpf'])
+        self.assertEqual(colaborador.cargo, self.colaborador_data['cargo'])
+        self.assertEqual(colaborador.setor, self.colaborador_data['setor'])
+        self.assertTrue(colaborador.ativo)
+
     def test_str_representation(self):
-        
-def test_criar_funcionario(self):
-        """Testa a criação de um colaborador com todos os campos"""
-        Colaboradores = Colaboradores.objetos.create(**self.Colaboradores)  # CORRIGIDO: objetos
-        
-        self.assertEqual(Colaboradores.nome, 'João')
-        self.assertEqual(Colaboradores.cpf, '123.456.789-00')
-        self.assertEqual(Colaboradores.cargo, 'Engenheiro')
-        self.assertEqual(Colaboradores.setor, 'Engenharia')
-        self.assertTrue(Colaboradores.ativo, 'ativo')
-        
+        """Testa a representação em string do modelo Colaborador."""
+        colaborador = Colaborador.objects.create(**self.colaborador_data)
+        self.assertEqual(str(colaborador), f"{self.colaborador_data['nome']} - {self.colaborador_data['setor']}")
 
-
-        
